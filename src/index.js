@@ -4,7 +4,7 @@ import "./style.css";
 
 
 
-import Scene from "./sketches/renderTargets/index";
+import Scene from "./sketches/city_concept/index";
 
 const activeScene = new Scene(); 
 
