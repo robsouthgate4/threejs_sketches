@@ -1,0 +1,47 @@
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+	entry: './src/index.js',
+	output: {
+		path: path.resolve(__dirname, 'dist'),
+		filename: 'index.js'
+	},
+	resolve: {
+		extensions: [".js", ".wasm"]
+	},
+	plugins: [
+		new HtmlWebpackPlugin({
+			template: './src/index.html',
+			filename: 'index.html'
+		})
+	],
+	devServer: {
+		contentBase: './dist',
+		https: false,
+		host: '0.0.0.0'
+	},
+	module: {
+		rules: [
+			{
+				test: /\.css$/i,
+				use: ['style-loader', 'css-loader'],
+			},
+			{
+				test: /\.(png|jpe?g|gif|dds|hdr)$/i,
+				loader: 'file-loader',
+				options: {
+					//publicPath: 'assets',
+				},
+			},
+			{
+				test: /\.(glsl|vs|fs|vert|frag)$/,
+				exclude: /node_modules/,
+				use: [
+				  'raw-loader',
+				  'glslify-loader'
+				]
+			}
+		]
+	}
+};
