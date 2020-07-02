@@ -43,9 +43,9 @@ export default class {
 
     }
 
-    setupTextures() {
+    async setupTextures() {
 
-       
+        
 
     }
 

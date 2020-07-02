@@ -1,4 +1,8 @@
-import { WebGLRenderTarget, DepthTexture, RGBAFormat, NearestFilter, UnsignedShortType, DepthFormat } from "three";
+import { WebGLRenderTarget, DepthTexture, RGBAFormat, NearestFilter, UnsignedShortType, DepthFormat, TextureLoader, Math } from "three";
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+
+const fbxLoader     = new FBXLoader();
+const tl            = new TextureLoader();
 
 export default class WebGLUtils {
     
@@ -22,6 +26,48 @@ export default class WebGLUtils {
     
         return fbo;
     
+    }
+
+    static LoadModelFBX( url ) {
+
+        return new Promise( ( resolve, reject ) => {
+
+            fbxLoader.load( url, fbx => {
+
+                const result = fbx;
+                resolve( result );
+
+            } );
+
+          } );
+
+    }
+
+    static LoadTexture( url ) {
+
+        return new Promise(resolve => {
+
+          tl.load( url, data => {
+
+            if (
+
+              !Math.isPowerOfTwo( data.image.width ) ||
+              !Math.isPowerOfTwo( data.image.height )
+
+            ) {
+
+              console.warn(`>>> "${url}" image size is not power of 2 <<<`);
+
+            }
+      
+            data.needsUpdate = true;
+
+            resolve( data );
+
+          });
+
+        });
+
     }
 
     

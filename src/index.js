@@ -2,8 +2,6 @@
 
 import "./style.css";
 
-
-
 import Scene from "./sketches/city_concept/index";
 
 const activeScene = new Scene(); 

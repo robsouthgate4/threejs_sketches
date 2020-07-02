@@ -16,8 +16,8 @@ uniform float       cameraFar;
 float readDepth( sampler2D depthSampler, vec2 coord ) {
 
     float fragCoordZ = texture2D( depthSampler, coord ).x;
-    float viewZ = perspectiveDepthToViewZ( fragCoordZ, 0.01, 100. );
-    return viewZToOrthographicDepth( viewZ, 0.01, 100. );
+    float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+    return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
     
 }
 
@@ -50,7 +50,7 @@ void main() {
     vec2 uvs            = texture2D( tUV, st ).rg;
     float depth         = readDepth( tDepth, st );
 
-    gl_FragColor.rgb    = vec3( uvs, 0.0 );
+    gl_FragColor.rgb    = diffuse;
 
     gl_FragColor.a      = 1.0;
 

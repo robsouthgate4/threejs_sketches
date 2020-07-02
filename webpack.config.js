@@ -28,7 +28,7 @@ module.exports = {
 				use: ['style-loader', 'css-loader'],
 			},
 			{
-				test: /\.(png|jpe?g|gif|dds|hdr)$/i,
+				test: /\.(png|jpe?g|gif|dds|hdr|obj|fbx)$/i,
 				loader: 'file-loader',
 				options: {
 					//publicPath: 'assets',

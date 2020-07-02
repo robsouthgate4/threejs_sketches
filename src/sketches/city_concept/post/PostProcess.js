@@ -1,29 +1,40 @@
-import { Scene, Mesh, OrthographicCamera, ShaderMaterial, PlaneBufferGeometry, MeshNormalMaterial } from "three";
-import MeshUVsMaterial from '../../../common/materials/MeshUvsMaterial';
-import WebGLUtils from '../../../WebGLUtils'
-import postVert from "../shaders/post/post.vert";
-import postFrag from "../shaders/post/post.frag";
-import PostBoxBlurPass from "./PostBoxBlurPass";
+import { Scene, Mesh, OrthographicCamera, ShaderMaterial, PlaneBufferGeometry, MeshNormalMaterial, Vector2 } from "three";
+import MeshUVsMaterial  from '../../../common/materials/MeshUvsMaterial';
+import WebGLUtils       from '../../../WebGLUtils'
+import postVert         from "../shaders/post/post.vert";
+import postFrag         from "../shaders/post/post.frag";
+import PostBoxBlurPass  from "./PostBoxBlurPass";
+import FBOHelper        from '../../../libs/THREE.FBOHelper'
 
 
 export default class PostProcess {
 
-    constructor( scene, camera ) {
+    constructor( scene, camera, renderer ) {
 
         
         this.postScene = new Scene();
 
+        this.fboHelper = new FBOHelper( renderer );
+        this.fboHelper.setSize( window.innerWidth, window.innerHeight );
+
         // Create frame buffers
 
-        this.sceneFBO   = WebGLUtils.CreateFBO( true );
+        this.sceneFBO   = WebGLUtils.CreateFBO( false );
         this.blurFBO    = WebGLUtils.CreateFBO( false );
         this.normalFBO  = WebGLUtils.CreateFBO( false );
         this.uvFBO      = WebGLUtils.CreateFBO( false );
+
+        this.fboHelper.attach( this.sceneFBO.texture, 'scene' );
+        this.fboHelper.attach( this.blurFBO.texture, 'blur' );
+        this.fboHelper.attach( this.normalFBO.texture, 'normals' );
+        this.fboHelper.attach( this.uvFBO.texture, 'uvs' );
 
         // Setup passes
 
         this.postBlurPass = new PostBoxBlurPass( this.blurFBO.texture );
         scene.add( this.postBlurPass.quad );
+
+        console.log( camera.near )
 
         this.postCamera     = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
         this.postMaterial   = new ShaderMaterial( {
@@ -59,9 +70,13 @@ export default class PostProcess {
         this.normalFBO.setSize( width, height );
         this.postBlurPass.resize( width, height );
 
+        this.fboHelper.setSize( width, height );
+
     }
 
     render( renderer, scene, camera ) {
+
+        
 
         // Blit original scene texture
 
@@ -100,6 +115,10 @@ export default class PostProcess {
 
 
         renderer.render( this.postScene, this.postCamera );
+
+        this.fboHelper.update();
+
+        
 
     }
     
