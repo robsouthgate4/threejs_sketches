@@ -1,10 +1,13 @@
-import { Scene, Mesh, OrthographicCamera, ShaderMaterial, PlaneBufferGeometry, MeshNormalMaterial, Vector2 } from "three";
+import { Scene, Mesh, OrthographicCamera, ShaderMaterial, PlaneBufferGeometry, MeshNormalMaterial, Vector2, RGBADepthPacking, NoBlending, WebGLRenderTarget, NearestFilter } from "three";
 import MeshUVsMaterial  from '../../../common/materials/MeshUvsMaterial';
 import WebGLUtils       from '../../../WebGLUtils'
 import postVert         from "../shaders/post/post.vert";
 import postFrag         from "../shaders/post/post.frag";
 import PostBoxBlurPass  from "./PostBoxBlurPass";
+import DOFPass          from "./DOFPass";
 import FBOHelper        from '../../../libs/THREE.FBOHelper'
+import MeshPositionMaterial from "../../../common/materials/MeshPositionMaterial";
+import { Color, MeshDepthMaterial } from "three/build/three.module";
 
 
 export default class PostProcess {
@@ -17,24 +20,44 @@ export default class PostProcess {
         this.fboHelper = new FBOHelper( renderer );
         this.fboHelper.setSize( window.innerWidth, window.innerHeight );
 
+        this.oldClearColor =  new Color();
+
         // Create frame buffers
 
-        this.sceneFBO   = WebGLUtils.CreateFBO( false );
-        this.blurFBO    = WebGLUtils.CreateFBO( false );
-        this.normalFBO  = WebGLUtils.CreateFBO( false );
-        this.uvFBO      = WebGLUtils.CreateFBO( false );
+        this.sceneFBO       = WebGLUtils.CreateFBO( false );
+        this.blurFBO        = WebGLUtils.CreateFBO( false );
+        this.normalFBO      = WebGLUtils.CreateFBO( false );
+        this.uvFBO          = WebGLUtils.CreateFBO( false );
+        this.positionFBO    = WebGLUtils.CreateFBO( false );
+        this.dofFBO         = WebGLUtils.CreateFBO( false );
+    
+        // depth material
+    
+        this.materialDepth              = new MeshDepthMaterial();
+        this.materialDepth.depthPacking = RGBADepthPacking;
+        this.materialDepth.blending     = NoBlending;
+
+        this.depthFBO = new WebGLRenderTarget( window.innerWidth, window.innerHeight, {
+            minFilter: NearestFilter,
+            magFilter: NearestFilter,
+            stencilBuffer: false
+        } );
 
         this.fboHelper.attach( this.sceneFBO.texture, 'scene' );
         this.fboHelper.attach( this.blurFBO.texture, 'blur' );
         this.fboHelper.attach( this.normalFBO.texture, 'normals' );
         this.fboHelper.attach( this.uvFBO.texture, 'uvs' );
+        this.fboHelper.attach( this.positionFBO.texture, 'position' );
+        this.fboHelper.attach( this.depthFBO.texture, 'depth' );        
+        this.fboHelper.attach( this.dofFBO.texture, 'dof' );
 
         // Setup passes
 
         this.postBlurPass = new PostBoxBlurPass( this.blurFBO.texture );
         scene.add( this.postBlurPass.quad );
 
-        console.log( camera.near )
+        this.dofPass      = new DOFPass( camera );
+        scene.add( this.dofPass.quad );
 
         this.postCamera     = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
         this.postMaterial   = new ShaderMaterial( {
@@ -49,7 +72,8 @@ export default class PostProcess {
                 tDepth:     { value: null },
                 tNormal:    { value: null },
                 tUV:        { value: null },
-                tRainbow:   { value: null }
+                tRainbow:   { value: null },
+                resolution: { value: new Vector2( window.innerWidth, window.innerHeight ) } 
             }
     
         } );
@@ -69,7 +93,8 @@ export default class PostProcess {
         this.blurFBO.setSize( width, height );
         this.normalFBO.setSize( width, height );
         this.postBlurPass.resize( width, height );
-
+        this.dofPass.resize( width, height );
+        this.depthFBO.setSize( width, height );
         this.fboHelper.setSize( width, height );
 
     }
@@ -84,31 +109,43 @@ export default class PostProcess {
         renderer.render( scene, camera );
         renderer.setRenderTarget( null );
 
-        // Blit normals to texture
+        // Blit depth texture
 
-        renderer.setRenderTarget( this.normalFBO );
-        scene.overrideMaterial = new MeshNormalMaterial();
-        renderer.render( scene, camera )
-        scene.overrideMaterial = null;
+        scene.overrideMaterial = this.materialDepth;
+
+		this.oldClearColor.copy( renderer.getClearColor() );
+		var oldClearAlpha   = renderer.getClearAlpha();
+		var oldAutoClear    = renderer.autoClear;
+		renderer.autoClear  = false;
+
+		renderer.setClearColor( 0xffffff );
+		renderer.setClearAlpha( 1.0 );
+		renderer.setRenderTarget( this.depthFBO );
+		renderer.clear();
+        renderer.render( scene, camera );        
         renderer.setRenderTarget( null );
-
-        // Blit uvs to texture
-
-        renderer.setRenderTarget( this.uvFBO );
-        scene.overrideMaterial = new MeshUVsMaterial();
-        renderer.render( scene, camera )
+        
         scene.overrideMaterial = null;
-        renderer.setRenderTarget( null );
 
-        // Blit to box blur pass
+        
+        this.dofPass.material.uniforms.tColor.value              = this.sceneFBO.texture;
+        this.dofPass.material.uniforms.uNearClip.value           = camera.near;
+		this.dofPass.material.uniforms.uFarClip.value            = camera.far;
+        this.dofPass.material.uniforms.uResolution.value         = new Vector2( window.innerWidth, window.innerHeight);
+        this.dofPass.material.uniforms.tDepth.value              = this.depthFBO.texture;
 
-        // this.postBlurPass.material.uniforms.uTexture.value     = this.sceneFBO.texture;
-        // this.postBlurPass.material.uniforms.uResolution.value  = new Vector2( window.innerWidth, window.innerHeight );
-        // this.postBlurPass.render( renderer, scene, camera, this.blurFBO );
+        
+        this.dofPass.render( renderer, scene, camera, this.dofFBO );
 
-        // // Final composition
 
-        this.postMaterial.uniforms.tDiffuse.value   = this.sceneFBO.texture;
+        
+        renderer.setClearColor( this.oldClearColor );
+        renderer.setClearAlpha( oldClearAlpha );
+        renderer.autoClear = oldAutoClear;
+
+        // Final composition
+
+        this.postMaterial.uniforms.tDiffuse.value   = this.dofFBO.texture;
         this.postMaterial.uniforms.tDepth.value     = this.sceneFBO.depthTexture;
         this.postMaterial.uniforms.tNormal.value    = this.normalFBO.texture;
         this.postMaterial.uniforms.tUV.value        = this.uvFBO.texture;

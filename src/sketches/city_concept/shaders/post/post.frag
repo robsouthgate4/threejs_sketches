@@ -1,3 +1,14 @@
+#pragma glslify: aces = require(glsl-tone-map/aces)
+#pragma glslify: uncharted2 = require(glsl-tone-map/uncharted2)
+#pragma glslify: lottes = require(glsl-tone-map/lottes)
+#pragma glslify: reinhard = require(glsl-tone-map/reinhard)
+#pragma glslify: reinhard2 = require(glsl-tone-map/reinhard2)
+#pragma glslify: uchimura = require(glsl-tone-map/uchimura)
+#pragma glslify: filmic = require(glsl-tone-map/filmic)
+#pragma glslify: unreal = require(glsl-tone-map/unreal)
+
+#pragma glslify: fxaa = require(glsl-fxaa)
+
 #include <packing>
 
 varying vec2        vUv;
@@ -8,6 +19,7 @@ uniform sampler2D   tNormal;
 uniform sampler2D   tRainbow;
 uniform float       cameraNear;
 uniform float       cameraFar;
+uniform vec2        resolution;
 
 #define PI 3.14159265359
 #define TWO_PI 6.28318530718
@@ -41,14 +53,10 @@ void main() {
 
     vec2 st             = vUv;
 
-    vec3 diffuse        = texture2D( tDiffuse, st ).rgb;
-      
+    //vec3 diffuse        = texture2D( tDiffuse, st ).rgb;
 
-    // Screen based textures
-
-    vec3 normal         = texture2D( tNormal, st ).rgb;
-    vec2 uvs            = texture2D( tUV, st ).rg;
-    float depth         = readDepth( tDepth, st );
+    vec2 fragCoord      = st * resolution;
+    vec3 diffuse        = fxaa( tDiffuse, fragCoord, resolution ).rgb;
 
     gl_FragColor.rgb    = diffuse;
 
