@@ -24,7 +24,12 @@ export default class {
         this.orbitControls.enableDamping    = true;
         this.orbitControls.rotateSpeed      = 0.2;
         this.orbitControls.dampingFactor    = 0.05;
-
+        this.orbitControls.maxDistance      = 750;
+        this.orbitControls.minZoom          = 300;
+        this.orbitControls.panSpeed         = 0.2;
+        this.orbitControls.autoRotate       = true;
+        this.orbitControls.autoRotateSpeed  = 0.6;
+        this.orbitControls.maxPolarAngle = Math.PI / 2.3;
     
         this.cityMesh;        
    
@@ -116,8 +121,6 @@ export default class {
         
 
         this.postProcess.render( this.renderer, this.scene, this.camera );
-
-        //this.renderer.render( this.scene, this.camera );
 
     }
 

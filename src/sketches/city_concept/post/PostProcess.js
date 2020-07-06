@@ -19,6 +19,7 @@ export default class PostProcess {
 
         this.fboHelper = new FBOHelper( renderer );
         this.fboHelper.setSize( window.innerWidth, window.innerHeight );
+        
 
         this.oldClearColor =  new Color();
 
@@ -30,6 +31,7 @@ export default class PostProcess {
         this.uvFBO          = WebGLUtils.CreateFBO( false );
         this.positionFBO    = WebGLUtils.CreateFBO( false );
         this.dofFBO         = WebGLUtils.CreateFBO( false );
+        
     
         // depth material
     
@@ -43,13 +45,13 @@ export default class PostProcess {
             stencilBuffer: false
         } );
 
-        this.fboHelper.attach( this.sceneFBO.texture, 'scene' );
-        this.fboHelper.attach( this.blurFBO.texture, 'blur' );
-        this.fboHelper.attach( this.normalFBO.texture, 'normals' );
-        this.fboHelper.attach( this.uvFBO.texture, 'uvs' );
-        this.fboHelper.attach( this.positionFBO.texture, 'position' );
-        this.fboHelper.attach( this.depthFBO.texture, 'depth' );        
-        this.fboHelper.attach( this.dofFBO.texture, 'dof' );
+        // this.fboHelper.attach( this.sceneFBO.texture, 'scene' );
+        // this.fboHelper.attach( this.blurFBO.texture, 'blur' );
+        // this.fboHelper.attach( this.normalFBO.texture, 'normals' );
+        // this.fboHelper.attach( this.uvFBO.texture, 'uvs' );
+        // this.fboHelper.attach( this.positionFBO.texture, 'position' );
+        // this.fboHelper.attach( this.depthFBO.texture, 'depth' );        
+        // this.fboHelper.attach( this.dofFBO.texture, 'dof' );
 
         // Setup passes
 
