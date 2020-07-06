@@ -18,7 +18,7 @@ export default class {
         
 
         this.camera                 = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 2.0, 2000 );
-        this.camera.position.set( 0, 300, 1000 );
+        this.camera.position.set( -350.3, 269.4, 726.4 );
 
         this.orbitControls                  = new OrbitControls( this.camera, this.renderer.domElement );
         this.orbitControls.enableDamping    = true;
@@ -30,7 +30,7 @@ export default class {
    
 
         this.scene                  = new Scene();
-        this.renderer.setClearColor( new Color( 'rgb( 240, 240, 240 )' ) );
+        this.renderer.setClearColor( new Color( 'rgb( 20, 20, 20 )' ) );
 
         this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
 
@@ -67,7 +67,7 @@ export default class {
 
         this.cityMesh      = geo.children[ 0 ];
 
-        this.cityMesh.scale.set( 1, 0, 1 );
+        this.cityMesh.scale.set( 1, 1, 1 );
 
         let tex         = new TextureLoader().load( cityDiffuse );
 
@@ -99,6 +99,8 @@ export default class {
 
     render() {
 
+        console.log( this.camera.position )
+
         requestAnimationFrame( () => this.render() );
 
         this.orbitControls.update();
@@ -108,7 +110,7 @@ export default class {
         if ( this.cityMesh && this.cityMesh.scale.y < 1 )
         {
 
-            this.cityMesh.scale.y += 0.001;
+            //this.cityMesh.scale.y += 0.001;
 
         }
         

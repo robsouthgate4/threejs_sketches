@@ -137,7 +137,6 @@ export default class PostProcess {
         
         this.dofPass.render( renderer, scene, camera, this.dofFBO );
 
-
         
         renderer.setClearColor( this.oldClearColor );
         renderer.setClearAlpha( oldClearAlpha );

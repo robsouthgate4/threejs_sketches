@@ -11,7 +11,7 @@ export default class DOFPass {
 
 		this.focus =  10.0;
 		this.aspect = camera.aspect;
-		this.aperture = 0.00001;
+		this.aperture = 0.000004;
 		this.maxblur =  0.01;		
 		
 		this.uniforms = {
