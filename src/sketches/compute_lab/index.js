@@ -1,13 +1,13 @@
 
-import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial } from "three";
-import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls'
+import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial, PlaneBufferGeometry } from "three";
+import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls';
 import PostProcess          from './post/PostProcess';
-import cityModel            from '../../../assets/city_assets/gherkin.fbx';
-import cityDiffuse          from '../../../assets/city_assets/overlay_blurred.png';
-import shadow               from '../../../assets/city_assets/shadow_plane.png';
-import WebGLUtiles          from '../../WebGLUtils';
-import { WebGLUtils } from "three/src/renderers/webgl/WebGLUtils";
-import { SphereGeometry, HemisphereLight } from "three/build/three.module";
+import ccaVert              from './compute/cca.vert';
+import ccaFrag              from './compute/cca.frag';
+import resetFrag            from './compute/reset.frag';
+import { ShaderMaterial, Vector2, Clock } from "three/build/three.module";
+import WebGLUtils from "../../WebGLUtils";
+import * as dat from 'dat.gui';
 
 export default class {
 
@@ -16,6 +16,7 @@ export default class {
         this.renderer               = new WebGLRenderer( { antialias: true } );
         this.renderer.setPixelRatio( window.devicePixelRatio );
         
+        this.clock = new Clock( true );
 
         this.camera                 = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 2.0, 2000 );
         this.camera.position.set( -350.3, 269.4, 726.4 );
@@ -30,10 +31,27 @@ export default class {
         this.orbitControls.autoRotate       = true;
         this.orbitControls.autoRotateSpeed  = 0.6;
         this.orbitControls.maxPolarAngle = Math.PI / 2.3;
-    
-        this.cityMesh;        
-   
 
+        this.computeSettings = {
+
+            maxRange: 10,
+            range: 1,
+            maxStates: 20,
+            nStates: 3,
+            moore: true,
+            threshold: 3,
+            maxThreshold: 25,
+            width: 1024,
+            height: 1024
+
+        }
+
+        this.dt;
+        this.resetting;
+        this.quadGeo;
+        this.quadMesh;
+        this.ccaPass;
+        this.resetPass;
         this.scene                  = new Scene();
         this.renderer.setClearColor( new Color( 'rgb( 20, 20, 20 )' ) );
 
@@ -52,46 +70,102 @@ export default class {
 
         }
 
-        this.cityDiffuse;
-
-        this.loadModels();
         this.addLights();
+        this.createPasses();
+        this.createGUI();
         
+        window.addEventListener( 'keydown', ( e ) => {
+
+            if ( e.code === 'KeyR' ) {
+
+                this.resetCompute();
+
+            }   
+
+        } )
+
+    }
+
+    createGUI() {
+
+        this.gui = new dat.GUI();
+
+        this.gui.add( this.computeSettings, 'maxRange', 0, 10 );
+        this.gui.add( this.computeSettings, 'range', 1, 10 );
+        this.gui.add( this.computeSettings, 'maxStates', 0, 20 );
+        this.gui.add( this.computeSettings, 'nStates', 0, 6 );
+        this.gui.add( this.computeSettings, 'moore' );
+        this.gui.add( this.computeSettings, 'threshold', 0, 25 );
+        this.gui.add( this.computeSettings, 'maxThreshold', 0, 25 );
 
     }
 
     addLights() {
 
-        this.scene.add( new HemisphereLight() )
+        this.ccaCompute = WebGLUtils.CreateDoubleFBO( this.computeSettings.width, this.computeSettings.height );
+  
 
     }
 
-    async loadModels() {
+    createPasses() {
 
-        let geo             = await WebGLUtiles.LoadModelFBX( cityModel );
+        this.ccaPass    = new ShaderMaterial( {
 
-        this.cityMesh      = geo.children[ 0 ];
+            uniforms: {
 
-        this.cityMesh.scale.set( 1, 1, 1 );
+                uTexelSize:       { value: 1 / this.computeSettings.width },
+                uResolution:      { value: new Vector2( window.innerWidth, window.innerHeight ) },
+                uReadTexture:     { value: this.ccaCompute.read.texture },
+                uWriteTexture:    { value: this.ccaCompute.write.texture },
+                uMaxRange:        { value: this.computeSettings.maxRange },
+                uRange:           { value: this.computeSettings.range },
+                uMaxStates:       { value: this.computeSettings.maxStates },
+                uNStates:         { value: this.computeSettings.nStates },
+                uMoore:           { value: this.computeSettings.moore },
+                uThreshold:       { value: this.computeSettings.threshold },
+                uMaxThreshold:    { value: this.computeSettings.maxThreshold },
+                uDeltaTime:       { value: 0 },
+    
+            },
+            vertexShader:   ccaVert,
+            fragmentShader: ccaFrag
 
-        let tex         = new TextureLoader().load( cityDiffuse );
+        } );
 
-        const materialCity          = new MeshStandardMaterial( { map: tex, color: new Color( 'rgb( 235, 225, 215 )' ) } );
-        materialCity.side           = DoubleSide;
+        this.resetPass    = new ShaderMaterial( {
 
-        const materialShadow    = new MeshBasicMaterial( { map: new TextureLoader().load( shadow ), color: 0x000000 } );
+            uniforms: {
 
-        this.cityMesh.material   = materialCity;
-        //floorMesh.material  = materialShadow;
+                uTexelSize:       { value: 1 / this.computeSettings.width },
+                uResolution:      { value: new Vector2( window.innerWidth, window.innerHeight ) },
+                uReadTexture:     { value: this.ccaCompute.read.texture },
+                uWriteTexture:    { value: this.ccaCompute.write.texture },
+                uMaxRange:        { value: this.computeSettings.maxRange },
+                uRange:           { value: this.computeSettings.range },
+                uMaxStates:       { value: this.computeSettings.maxStates },
+                uNStates:         { value: this.computeSettings.nStates },
+                uMoore:           { value: this.computeSettings.moore },
+                uThreshold:       { value: this.computeSettings.threshold },
+                uMaxThreshold:    { value: this.computeSettings.maxThreshold },
+                uDeltaTime:       { value: 0 },
+    
+            },
+            vertexShader:   ccaVert,
+            fragmentShader: resetFrag
 
-        this.scene.add( this.cityMesh );
+        } );
+
+
+        this.quadGeo    = new PlaneBufferGeometry( 2, 2 );
+        this.quadMesh   = new Mesh( this.quadGeo, this.ccaPass );
+        this.scene.add( this.quadMesh );
 
     }
+
+
 
     async loadTextures() {
 
-       let city = await WebGLUtiles.LoadTexture( cityDiffuse );
-       return city;
 
     }
 
@@ -102,23 +176,49 @@ export default class {
 
     }
 
+    resetCompute() {
+
+        console.log( 'Reset !' );
+
+        this.resetting = true;
+
+        this.quadMesh.material                      = this.resetPass;
+        this.ccaPass.uniforms.uDeltaTime.value      = this.dt;
+
+        this.renderer.setRenderTarget( this.ccaCompute.read );
+        this.renderer.render( this.scene, this.camera );
+
+        this.resetting = false;
+
+    }
+    
+
     render() {
 
-        console.log( this.camera.position )
+        this.dt = this.clock.getDelta();
+
+        if ( ! this.resetting ) {
+
+            this.quadMesh.material                      = this.ccaPass;
+            this.ccaPass.uniforms.uDeltaTime.value      = this.dt;
+            this.ccaPass.uniforms.uReadTexture.value    = this.ccaCompute.read.texture;
+            this.ccaPass.uniforms.uWriteTexture.value   = this.ccaCompute.write.texture;
+
+            this.renderer.setRenderTarget( this.ccaCompute.write );
+            this.renderer.render( this.scene, this.camera );
+
+            this.ccaCompute.swap();
+
+        }
+
+        
+
 
         requestAnimationFrame( () => this.render() );
 
         this.orbitControls.update();
 
         // Render using our custom postprocess class
-
-        if ( this.cityMesh && this.cityMesh.scale.y < 1 )
-        {
-
-            //this.cityMesh.scale.y += 0.001;
-
-        }
-        
 
         this.postProcess.render( this.renderer, this.scene, this.camera );
 
