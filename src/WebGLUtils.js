@@ -14,10 +14,11 @@ export default class WebGLUtils {
         fbo.texture.minFilter       = NearestFilter;
         fbo.texture.magFilter       = NearestFilter;
         fbo.texture.generateMipmaps = false;
-        fbo.depthBuffer             = true;
+        
     
         if ( useDepth ) {
-    
+
+            fbo.depthBuffer             = true;
             fbo.depthTexture            = new DepthTexture();
             fbo.depthTexture.format     = DepthFormat;
             fbo.depthTexture.type       = UnsignedShortType;
