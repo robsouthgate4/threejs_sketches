@@ -59,6 +59,7 @@ export default class PostBoxBlurPass {
 
 		renderer.setRenderTarget( renderTarget );
 		renderer.render( scene, camera );
+		renderer.setRenderTarget( null );
 
 		this.quad.visible = false;
 

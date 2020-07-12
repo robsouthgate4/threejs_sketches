@@ -14,7 +14,7 @@ void main() {
 
 	gl_FragColor        = texture2D( uTexture, vUv );
 
-	const float size    = 4.0;
+	const float size    = 3.0;
 
 	if (size <= 0.0) { return; }
 

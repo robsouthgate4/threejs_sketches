@@ -2,7 +2,7 @@
 
 import "./style.css";
 
-import Scene from "./sketches/city_concept/index";
+import Scene from "./sketches/compute_lab/index";
 
 const activeScene = new Scene(); 
 
