@@ -20,37 +20,36 @@ void main() {
 
 	vec2 uv = vUv;
 
-	//fetch each neighbor texel and current texel.
-    //top row
-    int r00 = int( texture2D( uReadTexture, uv + vec2(-1., 1. ) / uResolution ).r );
-    int r01 = int( texture2D( uReadTexture, uv + vec2( 0., 1. ) / uResolution ).r );
-    int r02 = int( texture2D( uReadTexture, uv + vec2( 1., 1. ) / uResolution ).r );
- 
-    //middle row
-    int r10 = int( texture2D( uReadTexture, uv + vec2(-1., 0. ) / uResolution ).r );
-    int r11 = int( texture2D( uReadTexture, uv ).r );
-    int r12 = int( texture2D( uReadTexture, uv + vec2( 1., .0 ) / uResolution ).r );
-   
-    //bottom row
-    int r20 = int( texture2D( uReadTexture, uv + vec2(-1.,-1. ) / uResolution ).r );
-    int r21 = int( texture2D( uReadTexture, uv + vec2( 0.,-1. ) / uResolution ).r );
-    int r22 = int( texture2D( uReadTexture, uv + vec2( 1.,-1. ) / uResolution ).r );
- 
-    //conways game of life rules:
-    //if neighbor count including self is 3, the next generation cell is alive
-    //if neighbor count including self is 4, and current cell is alive, the next generation cell is alive
-    //otherwise, the next generation cell is dead.
+        float dx = 1.0;
+        float dy = 1.0;
 
-    int finalSum = (r00 + r10 + r20) +
-                   (r01 + r11 + r21) +
-                   (r02 + r12 + r22);
- 
-    if(finalSum == 3)
-            gl_FragColor = vec4( 1.,1.,1.,1. );
-    else if(finalSum == 4 && r11 == 1)
-            gl_FragColor = vec4( 1.,1.,1.,1. );
-    else
-            gl_FragColor = vec4( 0.,0.,0.,1. );
+        vec4 s = texture2D( uReadTexture, uv );
+        vec4 r = s;
+
+        float ns;
+        float n;
+
+        ns = mod(s.r * 255.0 + 1.0, float(3));
+
+        n = 0.0;
+        n += float(texture2D(uReadTexture, uv + vec2(dx,   0) / uResolution, 1.0).r * 255.0 == ns);
+        n += float(texture2D(uReadTexture, uv - vec2(dx,   0) / uResolution, 1.0).r * 255.0 == ns);
+        n += float(texture2D(uReadTexture, uv + vec2( 0,  dy) / uResolution, 1.0).r * 255.0 == ns);
+        n += float(texture2D(uReadTexture, uv - vec2( 0,  dy) / uResolution, 1.0).r * 255.0 == ns);
+        n += float(texture2D(uReadTexture, uv + vec2(dx,  dy) / uResolution, 1.0).r * 255.0 == ns);
+        n += float(texture2D(uReadTexture, uv - vec2(dx,  dy) / uResolution, 1.0).r * 255.0 == ns);
+        n += float(texture2D(uReadTexture, uv + vec2(dx, -dy) / uResolution, 1.0).r * 255.0 == ns);
+        n += float(texture2D(uReadTexture, uv - vec2(dx, -dy) / uResolution, 1.0).r * 255.0 == ns);
+
+        n += float(s.r * 255.0 == ns);
+
+        if (n >= float(3)) {
+
+                r.r = ns / 255.0;
+
+        }
+
+        gl_FragColor = r;
 
 
 }
