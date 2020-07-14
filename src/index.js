@@ -2,7 +2,7 @@
 
 import "./style.css";
 
-import Scene from "./sketches/compute_lab/index";
+import Scene from "./sketches/compute_lab/compute/game_of_life/index";
 
 const activeScene = new Scene(); 
 

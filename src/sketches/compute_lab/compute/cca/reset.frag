@@ -1,8 +1,6 @@
-uniform sampler2D 	uReadTexture;
-uniform sampler2D 	uWriteTexture;
-uniform float 		uTexelSize;
+
 uniform vec2 		uResolution;
-uniform float 		uDeltaTime;
+uniform float		uSeed;
 uniform int			uNStates;
 
 varying vec2 vUv;
@@ -19,7 +17,7 @@ void main() {
 
 	vec2 id 		= vUv;
 
-	float rand 		= Random( id * .01 ).x * float( uNStates );
+	float rand 		= Random( id * uSeed ).x * float( uNStates );
 
 	vec3 write      = vec3( rand, rand, rand ); 	
 

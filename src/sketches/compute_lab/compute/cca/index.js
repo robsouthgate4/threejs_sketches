@@ -2,11 +2,11 @@
 import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial, PlaneBufferGeometry } from "three";
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls';
 import PostProcess          from './post/PostProcess';
-import ccaVert              from './compute/cca.vert';
-import ccaFrag              from './compute/cca.frag';
-import resetFrag            from './compute/reset.frag';
+import ccaVert              from './cca.vert';
+import ccaFrag              from './cca.frag';
+import resetFrag            from './reset.frag';
 import { ShaderMaterial, Vector2, Clock } from "three/build/three.module";
-import WebGLUtils from "../../WebGLUtils";
+import WebGLUtils from "../../../../WebGLUtils";
 import * as dat from 'dat.gui';
 
 export default class {
@@ -41,8 +41,8 @@ export default class {
             moore: true,
             threshold: 3,
             maxThreshold: 25,
-            width: 1024,
-            height: 1024
+            width: window.innerWidth,
+            height: window.innerHeight
 
         }
 
@@ -73,6 +73,8 @@ export default class {
         this.addLights();
         this.createPasses();
         this.createGUI();
+
+        //this.resetCompute();
         
         window.addEventListener( 'keydown', ( e ) => {
 
@@ -82,7 +84,17 @@ export default class {
 
             }   
 
-        } )
+        } );
+
+        window.addEventListener( 'keydown', ( e ) => {
+
+            if ( e.code === 'Space' ) {
+
+                this.render();
+
+            }   
+
+        } );
 
     }
 
@@ -148,6 +160,7 @@ export default class {
                 uThreshold:       { value: this.computeSettings.threshold },
                 uMaxThreshold:    { value: this.computeSettings.maxThreshold },
                 uDeltaTime:       { value: 0 },
+                uSeed:            { value: 0 }
     
             },
             vertexShader:   ccaVert,
@@ -178,17 +191,11 @@ export default class {
 
     resetCompute() {
 
-        console.log( 'Reset !' );
-
-        this.resetting = true;
-
         this.quadMesh.material                      = this.resetPass;
-        this.ccaPass.uniforms.uDeltaTime.value      = this.dt;
+        this.resetPass.uniforms.uSeed.value = Math.random() * 3;
 
         this.renderer.setRenderTarget( this.ccaCompute.read );
         this.renderer.render( this.scene, this.camera );
-
-        this.resetting = false;
 
     }
     
@@ -197,19 +204,16 @@ export default class {
 
         this.dt = this.clock.getDelta();
 
-        if ( ! this.resetting ) {
+        this.quadMesh.material                      = this.ccaPass;
+        this.ccaPass.uniforms.uDeltaTime.value      = this.dt;
+        this.ccaPass.uniforms.uReadTexture.value    = this.ccaCompute.read.texture;
+        this.ccaPass.uniforms.uWriteTexture.value   = this.ccaCompute.write.texture;
 
-            this.quadMesh.material                      = this.ccaPass;
-            this.ccaPass.uniforms.uDeltaTime.value      = this.dt;
-            this.ccaPass.uniforms.uReadTexture.value    = this.ccaCompute.read.texture;
-            this.ccaPass.uniforms.uWriteTexture.value   = this.ccaCompute.write.texture;
+        this.renderer.setRenderTarget( this.ccaCompute.write );
+        this.renderer.render( this.scene, this.camera );
+        this.renderer.setRenderTarget( null );
 
-            this.renderer.setRenderTarget( this.ccaCompute.write );
-            this.renderer.render( this.scene, this.camera );
-
-            this.ccaCompute.swap();
-
-        }
+        this.ccaCompute.swap();
 
         
 
@@ -220,7 +224,9 @@ export default class {
 
         // Render using our custom postprocess class
 
-        this.postProcess.render( this.renderer, this.scene, this.camera );
+        //this.postProcess.render( this.renderer, this.scene, this.camera );
+
+        this.renderer.render( this.scene, this.camera );
 
     }
 
