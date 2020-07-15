@@ -17,7 +17,7 @@ void main() {
 
 	vec2 id 		= vUv;
 
-	float rand 		= Random( id * uSeed ).x * float( uNStates );
+	int rand 		= int( Random( id * uResolution ).x * float( uNStates ) );
 
 	vec3 write      = vec3( rand, rand, rand ); 	
 

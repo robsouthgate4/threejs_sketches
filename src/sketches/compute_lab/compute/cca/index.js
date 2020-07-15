@@ -35,11 +35,11 @@ export default class {
         this.computeSettings = {
 
             maxRange:       10,
-            range:          1,
+            range:          6,
             maxStates:      20,
             nStates:        4,
             moore:          true,
-            threshold:      3,
+            threshold:      10,
             maxThreshold:   25,
             width:          window.innerWidth,
             height:         window.innerHeight,
@@ -75,16 +75,29 @@ export default class {
         this.addLights();
         this.createPasses();
         this.createGUI();
-
-        //this.resetCompute();
+        this.resetCompute();
         
         window.addEventListener( 'keydown', ( e ) => {
 
-            if ( e.code === 'KeyR' ) {
+            if ( e.code === 'KeyE' ) {
 
                 this.resetCompute();
 
             }   
+
+            if ( e.code === 'KeyR' ) {
+
+                this.randomiseParams();
+
+            } 
+
+            if ( e.code === 'KeyT' ) {
+
+                this.randomiseParams();
+                this.resetCompute();
+
+            }   
+
 
         } );
 
@@ -100,17 +113,31 @@ export default class {
 
     }
 
+    randomiseParams() {
+
+        this.computeSettings.range      = Math.floor( Math.random() * this.computeSettings.maxRange );
+        this.computeSettings.threshold  = Math.floor(  Math.random() * this.computeSettings.maxThreshold );
+        this.computeSettings.nStates    = Math.floor( ( Math.random() * ( this.computeSettings.maxStates - 2 )) + 2 );
+        this.computeSettings.moore      = Math.random() <= 0.5;
+
+        this.ccaPass.uniforms.uRange.value       =  this.computeSettings.range;
+        this.ccaPass.uniforms.uThreshold.value   =  this.computeSettings.threshold;
+        this.ccaPass.uniforms.uNStates.value     =  this.computeSettings.nStates;
+        this.ccaPass.uniforms.uMoore.value       =  this.computeSettings.moore;
+
+    }
+
     createGUI() {
 
         this.gui = new dat.GUI();
 
-        this.gui.add( this.computeSettings, 'maxRange', 0, 10 );
-        this.gui.add( this.computeSettings, 'range', 1, 10 );
-        this.gui.add( this.computeSettings, 'maxStates', 0, 20 );
-        this.gui.add( this.computeSettings, 'nStates', 0, 6 );
-        this.gui.add( this.computeSettings, 'moore' );
-        this.gui.add( this.computeSettings, 'threshold', 0, 25 );
-        this.gui.add( this.computeSettings, 'maxThreshold', 0, 25 );
+        this.gui.add( this.computeSettings, 'maxRange', 0, 10 ).listen();
+        this.gui.add( this.computeSettings, 'range', 1, 10 ).listen();
+        this.gui.add( this.computeSettings, 'maxStates', 0, 20 ).listen();
+        this.gui.add( this.computeSettings, 'nStates', 0, 6 ).listen();
+        this.gui.add( this.computeSettings, 'moore' ).listen();
+        this.gui.add( this.computeSettings, 'threshold', 0, 25 ).listen();
+        this.gui.add( this.computeSettings, 'maxThreshold', 0, 25 ).listen();
 
     }
 
@@ -194,7 +221,7 @@ export default class {
     resetCompute() {
 
         this.quadMesh.material                      = this.resetPass;
-        this.resetPass.uniforms.uSeed.value = Math.random() * 3;
+        this.resetPass.uniforms.uSeed.value         = Math.random() * this.computeSettings.nStates;
 
         this.renderer.setRenderTarget( this.ccaCompute.read );
         this.renderer.render( this.scene, this.camera );
@@ -210,6 +237,11 @@ export default class {
         this.ccaPass.uniforms.uDeltaTime.value      = this.dt;
         this.ccaPass.uniforms.uReadTexture.value    = this.ccaCompute.read.texture;
         this.ccaPass.uniforms.uWriteTexture.value   = this.ccaCompute.write.texture;
+
+        this.ccaPass.uniforms.uRange.value       =  this.computeSettings.range;
+        this.ccaPass.uniforms.uThreshold.value   =  this.computeSettings.threshold;
+        this.ccaPass.uniforms.uNStates.value     =  this.computeSettings.nStates;
+        this.ccaPass.uniforms.uMoore.value       =  this.computeSettings.moore;
 
         this.renderer.setRenderTarget( this.ccaCompute.write );
         this.renderer.render( this.scene, this.camera );
@@ -227,7 +259,7 @@ export default class {
 
             requestAnimationFrame( () => this.render() );
 
-        }, 1000 / 30 );
+        }, 1000 / 20 );
 
         
 

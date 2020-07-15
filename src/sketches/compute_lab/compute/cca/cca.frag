@@ -16,17 +16,29 @@ uniform int 		uMaxThreshold;
 
 varying vec2 vUv;
 
+vec3 hsb2rgb( in vec3 c ){
+
+    vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),
+                             6.0)-3.0)-1.0,
+                     0.0,
+                     1.0 );
+    rgb = rgb*rgb*(3.0-2.0*rgb);
+    return c.z * mix(vec3(1.0), rgb, c.y);
+
+}
+
 void main() {
 
 	vec2 uv = vUv;
 
-	int state = int( texture2D( uReadTexture, uv + vec2( 0, 0 ) / uResolution ).r );
+	float state = texture2D( uReadTexture, uv + vec2( 0, 0 ) / uResolution ).r;
 	int count = 0;
-	int next  = state + 1 == uNStates ? 0 : state + 1;
+	int next  = int( state ) + 1 == uNStates ? 0 : int( state ) + 1;
 
-	const int range = 1;
+	const int range = 2;
+	int s = 0;
 
-    for ( int x = -range; x <= range; x += range ) {
+    for ( int x = -range; x <= range; x += 1 ) {
 
         for ( int y = -range; y <= range; y += 1 ) {
 
@@ -38,7 +50,7 @@ void main() {
 
 			if ( uMoore || ( x == 0 || y == 0 ) ) {
 
-				int s = int( texture2D( uReadTexture, uv + vec2( x, y ) / uResolution ).r );
+				s = int( texture2D( uReadTexture, uv + vec2( x, y ) / uResolution ).r );
 				count += int( s == next );
 
 			}
@@ -49,10 +61,10 @@ void main() {
 
 	if ( count >= uThreshold ) {
 
-		state = int( mod( float( state + 1 ), float( uNStates ) ) );
+		state = mod( float( state + 1. ), float( uNStates ) );
 
 	}
- 
-    gl_FragColor = vec4( vec3( state ), 1.0 );
+
+    gl_FragColor = vec4( state, s, count, 1.0 );
 
 }
