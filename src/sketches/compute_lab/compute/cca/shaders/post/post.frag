@@ -58,6 +58,10 @@ void main() {
     vec2 fragCoord      = st * resolution;
     vec3 diffuse        = fxaa( tDiffuse, fragCoord, resolution ).rgb;
 
+    float mask          = 1.0 - length( st - vec2( 0.5 ) );
+
+    mask                = step( 1.0 - mask, 0.5 );
+
     gl_FragColor.rgb    = diffuse;
 
     gl_FragColor.a      = 1.0;
