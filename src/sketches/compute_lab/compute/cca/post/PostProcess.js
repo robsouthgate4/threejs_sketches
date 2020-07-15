@@ -110,45 +110,9 @@ export default class PostProcess {
         renderer.render( scene, camera );
         renderer.setRenderTarget( null );
 
-        // Blit depth texture
-
-        scene.overrideMaterial = this.materialDepth;
-
-		this.oldClearColor.copy( renderer.getClearColor() );
-		var oldClearAlpha   = renderer.getClearAlpha();
-		var oldAutoClear    = renderer.autoClear;
-		renderer.autoClear  = false;
-
-		renderer.setClearColor( 0xffffff );
-		renderer.setClearAlpha( 1.0 );
-		renderer.setRenderTarget( this.depthFBO );
-		renderer.clear();
-        renderer.render( scene, camera );        
-        renderer.setRenderTarget( null );
-        
-        scene.overrideMaterial = null;
-
-        
-        this.dofPass.material.uniforms.tColor.value              = this.sceneFBO.texture;
-        this.dofPass.material.uniforms.uNearClip.value           = camera.near;
-		this.dofPass.material.uniforms.uFarClip.value            = camera.far;
-        this.dofPass.material.uniforms.uResolution.value         = new Vector2( window.innerWidth, window.innerHeight);
-        this.dofPass.material.uniforms.tDepth.value              = this.depthFBO.texture;
-
-        
-        this.dofPass.render( renderer, scene, camera, this.dofFBO );
-
-        
-        renderer.setClearColor( this.oldClearColor );
-        renderer.setClearAlpha( oldClearAlpha );
-        renderer.autoClear = oldAutoClear;
-
         // Final composition
 
-        this.postMaterial.uniforms.tDiffuse.value   = this.dofFBO.texture;
-        this.postMaterial.uniforms.tDepth.value     = this.sceneFBO.depthTexture;
-        this.postMaterial.uniforms.tNormal.value    = this.normalFBO.texture;
-        this.postMaterial.uniforms.tUV.value        = this.uvFBO.texture;
+        this.postMaterial.uniforms.tDiffuse.value   = this.sceneFBO.texture;
 
 
         renderer.render( this.postScene, this.postCamera );

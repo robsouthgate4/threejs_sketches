@@ -34,15 +34,17 @@ export default class {
 
         this.computeSettings = {
 
-            maxRange: 10,
-            range: 1,
-            maxStates: 20,
-            nStates: 3,
-            moore: true,
-            threshold: 3,
-            maxThreshold: 25,
-            width: window.innerWidth,
-            height: window.innerHeight
+            maxRange:       10,
+            range:          1,
+            maxStates:      20,
+            nStates:        4,
+            moore:          true,
+            threshold:      3,
+            maxThreshold:   25,
+            width:          window.innerWidth,
+            height:         window.innerHeight,
+            stepMod:        1,
+            stepsPerFrame:  1
 
         }
 
@@ -213,20 +215,23 @@ export default class {
         this.renderer.render( this.scene, this.camera );
         this.renderer.setRenderTarget( null );
 
-        this.ccaCompute.swap();
-
-        
-
-
-        requestAnimationFrame( () => this.render() );
-
-        this.orbitControls.update();
+        this.ccaCompute.swap();               
 
         // Render using our custom postprocess class
 
-        //this.postProcess.render( this.renderer, this.scene, this.camera );
+        this.postProcess.render( this.renderer, this.scene, this.camera );
 
-        this.renderer.render( this.scene, this.camera );
+        //this.renderer.render( this.scene, this.camera );
+
+        setTimeout( () => {
+
+            requestAnimationFrame( () => this.render() );
+
+        }, 1000 / 30 );
+
+        
+
+        this.orbitControls.update();
 
     }
 

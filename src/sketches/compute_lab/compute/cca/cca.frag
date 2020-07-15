@@ -10,7 +10,7 @@ uniform int 		uMaxRange;
 uniform int 		uRange;
 uniform int 		uMaxStates;
 uniform int 		uNStates;
-uniform int 		uMoore;
+uniform bool 		uMoore;
 uniform int 		uThreshold;
 uniform int 		uMaxThreshold;
 
@@ -20,36 +20,39 @@ void main() {
 
 	vec2 uv = vUv;
 
-        float dx = 1.0;
-        float dy = 1.0;
+	int state = int( texture2D( uReadTexture, uv + vec2( 0, 0 ) / uResolution ).r );
+	int count = 0;
+	int next  = state + 1 == uNStates ? 0 : state + 1;
 
-        vec4 s = texture2D( uReadTexture, uv );
-        vec4 r = s;
+	const int range = 1;
 
-        float ns;
-        float n;
+    for ( int x = -range; x <= range; x += range ) {
 
-        ns = mod(s.r * 255.0 + 1.0, float(3));
+        for ( int y = -range; y <= range; y += 1 ) {
 
-        n = 0.0;
-        n += float(texture2D(uReadTexture, uv + vec2(dx,   0) / uResolution, 1.0).r * 255.0 == ns);
-        n += float(texture2D(uReadTexture, uv - vec2(dx,   0) / uResolution, 1.0).r * 255.0 == ns);
-        n += float(texture2D(uReadTexture, uv + vec2( 0,  dy) / uResolution, 1.0).r * 255.0 == ns);
-        n += float(texture2D(uReadTexture, uv - vec2( 0,  dy) / uResolution, 1.0).r * 255.0 == ns);
-        n += float(texture2D(uReadTexture, uv + vec2(dx,  dy) / uResolution, 1.0).r * 255.0 == ns);
-        n += float(texture2D(uReadTexture, uv - vec2(dx,  dy) / uResolution, 1.0).r * 255.0 == ns);
-        n += float(texture2D(uReadTexture, uv + vec2(dx, -dy) / uResolution, 1.0).r * 255.0 == ns);
-        n += float(texture2D(uReadTexture, uv - vec2(dx, -dy) / uResolution, 1.0).r * 255.0 == ns);
+            if ( x == 0 && y == 0 ) {
 
-        n += float(s.r * 255.0 == ns);
+				continue;
 
-        if (n >= float(3)) {
+			}
 
-                r.r = ns / 255.0;
+			if ( uMoore || ( x == 0 || y == 0 ) ) {
+
+				int s = int( texture2D( uReadTexture, uv + vec2( x, y ) / uResolution ).r );
+				count += int( s == next );
+
+			}
 
         }
 
-        gl_FragColor = r;
+    }
 
+	if ( count >= uThreshold ) {
+
+		state = int( mod( float( state + 1 ), float( uNStates ) ) );
+
+	}
+ 
+    gl_FragColor = vec4( vec3( state ), 1.0 );
 
 }
