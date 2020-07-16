@@ -1,4 +1,15 @@
-import { WebGLRenderTarget, DepthTexture, RGBAFormat, NearestFilter, UnsignedShortType, DepthFormat, TextureLoader, Math } from "three";
+import {  
+	WebGLRenderTarget,
+	DepthTexture,
+	RGBAFormat,
+	UnsignedShortType,
+	DepthFormat,
+	TextureLoader,
+	FloatType,
+	NearestFilter,
+	RepeatWrapping 
+} from "three";
+
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 
 const fbxLoader     = new FBXLoader();
@@ -28,6 +39,54 @@ export default class WebGLUtils {
         return fbo;
     
     }
+
+    static CreateDoubleFBO ( w, h, filtering ) {
+        
+      let rt1 = new WebGLRenderTarget(w, h, {
+
+          type:             FloatType,
+          minFilter:        filtering || NearestFilter,
+          magFilter:        filtering || NearestFilter,
+          wrapS:            RepeatWrapping,
+          wrapT:            RepeatWrapping,
+          format:           RGBAFormat,
+          depthBuffer:      false,
+          stencilBuffer:    false,
+          anisotropy:       1,
+          generateMipmaps:  false
+
+      });
+  
+      let rt2 = new WebGLRenderTarget(w, h, {
+
+        type:             FloatType,
+        minFilter:        filtering || NearestFilter,
+        magFilter:        filtering || NearestFilter,
+        wrapS:            RepeatWrapping,
+        wrapT:            RepeatWrapping,
+        format:           RGBAFormat,
+        depthBuffer:      false,
+        stencilBuffer:    false,
+        anisotropy:       1,
+        generateMipmaps:  false
+
+    });
+  
+      return {
+
+          read:  rt1,
+          write: rt2,
+
+          swap: function() {
+
+              let temp    = this.read;
+              this.read   = this.write;
+              this.write  = temp;
+
+          }
+
+      }
+  }
 
     static LoadModelFBX( url ) {
 

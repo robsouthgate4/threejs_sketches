@@ -1,5 +1,5 @@
 
-import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth } from "three";
+import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial } from "three";
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls'
 import PostProcess          from './post/PostProcess';
 import cityModel            from '../../../assets/city_assets/gherkin.fbx';
@@ -7,7 +7,7 @@ import cityDiffuse          from '../../../assets/city_assets/overlay_blurred.pn
 import shadow               from '../../../assets/city_assets/shadow_plane.png';
 import WebGLUtiles          from '../../WebGLUtils';
 import { WebGLUtils } from "three/src/renderers/webgl/WebGLUtils";
-import { SphereGeometry } from "three/build/three.module";
+import { SphereGeometry, HemisphereLight } from "three/build/three.module";
 
 export default class {
 
@@ -62,7 +62,7 @@ export default class {
 
     addLights() {
 
-     
+        this.scene.add( new HemisphereLight() )
 
     }
 
@@ -76,7 +76,7 @@ export default class {
 
         let tex         = new TextureLoader().load( cityDiffuse );
 
-        const materialCity          = new MeshBasicMaterial( { map: tex, color: new Color( 'rgb( 255, 255, 255 )' ) } );
+        const materialCity          = new MeshStandardMaterial( { map: tex, color: new Color( 'rgb( 235, 225, 215 )' ) } );
         materialCity.side           = DoubleSide;
 
         const materialShadow    = new MeshBasicMaterial( { map: new TextureLoader().load( shadow ), color: 0x000000 } );
