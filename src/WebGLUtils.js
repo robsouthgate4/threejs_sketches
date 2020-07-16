@@ -43,31 +43,33 @@ export default class WebGLUtils {
         
       let rt1 = new WebGLRenderTarget(w, h, {
 
-          type:          FloatType,
-          minFilter:     filtering || NearestFilter,
-          magFilter:     filtering || NearestFilter,
-          wrapS:         RepeatWrapping,
-          wrapT:         RepeatWrapping,
-          format:        RGBAFormat,
-          depthBuffer:   false,
-          stencilBuffer: false,
-          anisotropy:    1
+          type:             FloatType,
+          minFilter:        filtering || NearestFilter,
+          magFilter:        filtering || NearestFilter,
+          wrapS:            RepeatWrapping,
+          wrapT:            RepeatWrapping,
+          format:           RGBAFormat,
+          depthBuffer:      false,
+          stencilBuffer:    false,
+          anisotropy:       1,
+          generateMipmaps:  false
 
       });
   
       let rt2 = new WebGLRenderTarget(w, h, {
 
-          type:          FloatType,
-          minFilter:     filtering || NearestFilter,
-          magFilter:     filtering || NearestFilter,
-          wrapS:         RepeatWrapping,
-          wrapT:         RepeatWrapping,
-          format:        RGBAFormat,
-          depthBuffer:   false,
-          stencilBuffer: false,
-          anisotropy:    1,
+        type:             FloatType,
+        minFilter:        filtering || NearestFilter,
+        magFilter:        filtering || NearestFilter,
+        wrapS:            RepeatWrapping,
+        wrapT:            RepeatWrapping,
+        format:           RGBAFormat,
+        depthBuffer:      false,
+        stencilBuffer:    false,
+        anisotropy:       1,
+        generateMipmaps:  false
 
-      });
+    });
   
       return {
 

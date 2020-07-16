@@ -74,6 +74,8 @@ export default class PostProcess {
                 tNormal:    { value: null },
                 tUV:        { value: null },
                 tRainbow:   { value: null },
+                uNStates:   { value: null },
+                uThreshold: { value: null },
                 resolution: { value: new Vector2( window.innerWidth, window.innerHeight ) } 
             }
     

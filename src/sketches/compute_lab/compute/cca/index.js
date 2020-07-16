@@ -35,11 +35,11 @@ export default class {
         this.computeSettings = {
 
             maxRange:       10,
-            range:          6,
+            range:          1,
             maxStates:      20,
             nStates:        4,
             moore:          true,
-            threshold:      10,
+            threshold:      3,
             maxThreshold:   25,
             width:          window.innerWidth,
             height:         window.innerHeight,
@@ -251,6 +251,8 @@ export default class {
 
         // Render using our custom postprocess class
 
+        this.postProcess.postMaterial.uniforms.uNStates.value   = this.computeSettings.nStates;
+        this.postProcess.postMaterial.uniforms.uThreshold.value = this.computeSettings.threshold;
         this.postProcess.render( this.renderer, this.scene, this.camera );
 
         //this.renderer.render( this.scene, this.camera );

@@ -19,6 +19,9 @@ uniform sampler2D   tNormal;
 uniform sampler2D   tRainbow;
 uniform float       cameraNear;
 uniform float       cameraFar;
+uniform int         uNStates;
+uniform int         uCount;
+uniform int         uThreshold;
 uniform vec2        resolution;
 
 #define PI 3.14159265359
@@ -73,25 +76,27 @@ void main() {
     mask                = step( 1.0 - mask, 0.5 );
 
     float state         = diffuse.r;
-    float s             = diffuse.g;
+    //state               = state / float( uNStates );
+
     float count         = diffuse.b;
+    count               = count / float( uThreshold );
 
     vec3 hsb            = vec3( 0., .9, 1. ); 
 
-    if ( true ) {
+    if ( false ) {
 
-        hsb.x = s;
-
-    }
-
-    if ( true ) {
-
-        hsb.x = hsb.y = hsb.z = s;
+        hsb.x = state;
 
     }
 
-    gl_FragColor.rgb    = hsb2rgb( hsb );
+    if ( false ) {
 
+        hsb.x = hsb.y = hsb.z = state;
+
+    }
+
+    gl_FragColor.rgb    = vec3( state );
+ 
     gl_FragColor.a      = 1.0;
 
 }

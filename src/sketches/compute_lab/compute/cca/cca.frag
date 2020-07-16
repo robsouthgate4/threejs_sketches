@@ -35,7 +35,7 @@ void main() {
 	int count = 0;
 	int next  = int( state ) + 1 == uNStates ? 0 : int( state ) + 1;
 
-	const int range = 2;
+	const int range = 1;
 	int s = 0;
 
     for ( int x = -range; x <= range; x += 1 ) {
