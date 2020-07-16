@@ -1,3 +1,7 @@
+
+precision highp int;
+precision highp float;
+
 #pragma glslify: aces = require(glsl-tone-map/aces)
 #pragma glslify: uncharted2 = require(glsl-tone-map/uncharted2)
 #pragma glslify: lottes = require(glsl-tone-map/lottes)
@@ -64,39 +68,77 @@ vec3 hsb2rgb( in vec3 c ){
 
 void main() {
 
-    vec2 st             = vUv;
+    vec2 id             = gl_FragCoord.xy / resolution;
 
-    //vec3 diffuse        = texture2D( tDiffuse, st ).rgb;
+    float s             = texture2D( tDiffuse, id ).r;
+    float count         = texture2D( tDiffuse, id ).g;
+    
+    s = s / float( uNStates );
 
-    vec2 fragCoord      = st * resolution;
-    vec3 diffuse        = fxaa( tDiffuse, fragCoord, resolution ).rgb;
+    vec3 hsb            = vec3( 0., .2, 1. ); 
 
-    float mask          = 1.0 - length( st - vec2( 0.5 ) );
+    vec3 state = vec3( s );
 
-    mask                = step( 1.0 - mask, 0.5 );
+    // if ( false ) {
 
-    float state         = diffuse.r;
-    //state               = state / float( uNStates );
+    //     hsb.x   = s;
+    //     state   = hsb2rgb( hsb );
 
-    float count         = diffuse.b;
-    count               = count / float( uThreshold );
+    // }
 
-    vec3 hsb            = vec3( 0., .9, 1. ); 
+    // if ( false ) {
 
-    if ( false ) {
+	// 	hsb.x = hsb.y = hsb.z = s;
+	// 	hsb.x = mix(.3, .0, hsb.x);
+	// 	hsb.y += .7;
+	// 	hsb.z += .6;
+	// 	state = hsb2rgb( hsb );
 
-        hsb.x = state;
+	// }
 
-    }
+    // if ( false ) {
+	// 	hsb.x = hsb.y = hsb.z = s;
+	// 	hsb.x = mix(.3, .0, hsb.x);
+	// 	hsb.y += .7;
+	// 	hsb.z -= .5;
+	// 	hsb.z *= 5.;
+	// 	hsb.z = clamp(hsb.z, 0., 1.);
+	// 	state += hsb2rgb(hsb);
+	// 	state *= .7;
+	// }
 
-    if ( false ) {
+    // if ( false ) {
 
-        hsb.x = hsb.y = hsb.z = state;
+	// 	hsb.x = hsb.y = hsb.z = count;
+	// 	hsb.x = mix(.7, .3, hsb.x);
+	// 	hsb.y += .7;
+	// 	hsb.z = clamp(hsb.z, 0., 1.);
+	// 	state = hsb2rgb( hsb );
 
-    }
+	// }
 
-    gl_FragColor.rgb    = vec3( state );
- 
-    gl_FragColor.a      = 1.0;
+    if ( true ) {
+
+		hsb.x = hsb.y = hsb.z = count;
+		//hsb.x = lerp(.4, 1, hsb.x);  	// 1/3/4 M
+		hsb.x = mix(0., .1, hsb.x);  	// 8/14/2/N
+		hsb.y += .7;
+		state += hsb2rgb(hsb);
+		//state *= .90; // 1/3/4/M
+		state *= .70;
+	}
+
+    // if ( false ) {
+
+    //     hsb.x = hsb.y = hsb.z = state;
+
+    // }
+
+    id -= 0.5;
+    id.x *= resolution.x / resolution.y;
+    float d = length( id );
+
+    gl_FragColor.rgb    = state;
+    gl_FragColor.rgb    *= smoothstep( .5, .4, d );
 
 }

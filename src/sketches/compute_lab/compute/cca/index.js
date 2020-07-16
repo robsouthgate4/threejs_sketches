@@ -1,11 +1,11 @@
 
-import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial, PlaneBufferGeometry } from "three";
+import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial, PlaneBufferGeometry, LinearFilter } from "three";
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls';
 import PostProcess          from './post/PostProcess';
 import ccaVert              from './cca.vert';
 import ccaFrag              from './cca.frag';
 import resetFrag            from './reset.frag';
-import { ShaderMaterial, Vector2, Clock } from "three/build/three.module";
+import { ShaderMaterial, Vector2, Clock, RawShaderMaterial } from "three/build/three.module";
 import WebGLUtils from "../../../../WebGLUtils";
 import * as dat from 'dat.gui';
 
@@ -13,13 +13,13 @@ export default class {
 
     constructor() {
 
-        this.renderer               = new WebGLRenderer( { antialias: true } );
+        this.renderer               = new WebGLRenderer();
         this.renderer.setPixelRatio( window.devicePixelRatio );
         
         this.clock = new Clock( true );
 
         this.camera                 = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 2.0, 2000 );
-        this.camera.position.set( -350.3, 269.4, 726.4 );
+        this.camera.position.set( 0, 0, 1 );
 
         this.orbitControls                  = new OrbitControls( this.camera, this.renderer.domElement );
         this.orbitControls.enableDamping    = true;
@@ -55,7 +55,7 @@ export default class {
         this.ccaPass;
         this.resetPass;
         this.scene                  = new Scene();
-        this.renderer.setClearColor( new Color( 'rgb( 20, 20, 20 )' ) );
+        //this.renderer.setClearColor( new Color( 'rgb( 20, 20, 20 )' ) );
 
         this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
 
@@ -72,7 +72,7 @@ export default class {
 
         }
 
-        this.addLights();
+        this.initFBOS();
         this.createPasses();
         this.createGUI();
         this.resetCompute();
@@ -117,7 +117,7 @@ export default class {
 
         this.computeSettings.range      = Math.floor( Math.random() * this.computeSettings.maxRange );
         this.computeSettings.threshold  = Math.floor(  Math.random() * this.computeSettings.maxThreshold );
-        this.computeSettings.nStates    = Math.floor( ( Math.random() * ( this.computeSettings.maxStates - 2 )) + 2 );
+        this.computeSettings.nStates    = 4;
         this.computeSettings.moore      = Math.random() <= 0.5;
 
         this.ccaPass.uniforms.uRange.value       =  this.computeSettings.range;
@@ -141,16 +141,16 @@ export default class {
 
     }
 
-    addLights() {
+    initFBOS() {
 
-        this.ccaCompute = WebGLUtils.CreateDoubleFBO( this.computeSettings.width, this.computeSettings.height );
+        this.ccaCompute = WebGLUtils.CreateDoubleFBO( this.computeSettings.width, this.computeSettings.height, LinearFilter );
   
 
     }
 
     createPasses() {
 
-        this.ccaPass    = new ShaderMaterial( {
+        this.ccaPass    = new RawShaderMaterial( {
 
             uniforms: {
 
@@ -173,7 +173,7 @@ export default class {
 
         } );
 
-        this.resetPass    = new ShaderMaterial( {
+        this.resetPass    = new RawShaderMaterial( {
 
             uniforms: {
 
@@ -253,7 +253,8 @@ export default class {
 
         this.postProcess.postMaterial.uniforms.uNStates.value   = this.computeSettings.nStates;
         this.postProcess.postMaterial.uniforms.uThreshold.value = this.computeSettings.threshold;
-        this.postProcess.render( this.renderer, this.scene, this.camera );
+
+        this.postProcess.render( this.renderer, this.scene, this.camera, this.ccaCompute.read.texture );
 
         //this.renderer.render( this.scene, this.camera );
 
@@ -261,7 +262,7 @@ export default class {
 
             requestAnimationFrame( () => this.render() );
 
-        }, 1000 / 20 );
+        }, 1000 / 30 );
 
         
 

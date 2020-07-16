@@ -1,4 +1,7 @@
 
+precision lowp int;
+precision lowp float;
+
 uniform vec2 		uResolution;
 uniform float		uSeed;
 uniform int			uNStates;
@@ -17,7 +20,7 @@ void main() {
 
 	vec2 id 		= vUv;
 
-	int rand 		= int( Random( id * uResolution ).x * float( uNStates ) );
+	int rand 		= int( Random( id * 1. ).x * float( uNStates ) );
 
 	vec3 write      = vec3( rand, rand, rand ); 	
 

@@ -1,5 +1,7 @@
 varying vec2 vUv;
 
+attribute vec3 position;
+
 void main() {
 
     vUv = position.xy * 0.5 + 0.5;

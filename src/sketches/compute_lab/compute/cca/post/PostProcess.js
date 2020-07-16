@@ -6,7 +6,7 @@ import postFrag         from "../shaders/post/post.frag";
 import PostBoxBlurPass  from "./PostBoxBlurPass";
 import DOFPass          from "./DOFPass";
 import FBOHelper        from '../../../../../libs/THREE.FBOHelper'
-import { Color, MeshDepthMaterial } from "three/build/three.module";
+import { Color, MeshDepthMaterial, RawShaderMaterial } from "three/build/three.module";
 
 
 export default class PostProcess {
@@ -61,7 +61,7 @@ export default class PostProcess {
         scene.add( this.dofPass.quad );
 
         this.postCamera     = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
-        this.postMaterial   = new ShaderMaterial( {
+        this.postMaterial   = new RawShaderMaterial( {
 
             vertexShader:   postVert,
             fragmentShader: postFrag,
@@ -102,7 +102,7 @@ export default class PostProcess {
 
     }
 
-    render( renderer, scene, camera ) {
+    render( renderer, scene, camera, readTexture ) {
 
         
 
@@ -114,7 +114,7 @@ export default class PostProcess {
 
         // Final composition
 
-        this.postMaterial.uniforms.tDiffuse.value   = this.sceneFBO.texture;
+        this.postMaterial.uniforms.tDiffuse.value   = readTexture;
 
 
         renderer.render( this.postScene, this.postCamera );

@@ -1,4 +1,5 @@
-
+precision highp int;
+precision highp float;
   
 uniform sampler2D 	uReadTexture;
 uniform sampler2D 	uWriteTexture;
@@ -29,29 +30,35 @@ vec3 hsb2rgb( in vec3 c ){
 
 void main() {
 
-	vec2 uv = vUv;
+	vec2 id = vUv;
 
-	float state = texture2D( uReadTexture, uv + vec2( 0, 0 ) / uResolution ).r;
-	int count = 0;
-	int next  = int( state ) + 1 == uNStates ? 0 : int( state ) + 1;
+	float state = texture2D( uReadTexture, id ).r;
+	
+	float count = 0.;
+	float next  = state + 1. == float( uNStates ) ? 0. : state + 1.;
 
-	const int range = 1;
-	int s = 0;
+	const float range = 2.0;
 
-    for ( int x = -range; x <= range; x += 1 ) {
+    for ( float x = -range; x <= range; x ++ ) {
 
-        for ( int y = -range; y <= range; y += 1 ) {
+        for ( float y = -range; y <= range; y ++ ) {
 
-            if ( x == 0 && y == 0 ) {
+            if ( (x == 0.0 && y == 0.0 ) ) {
 
 				continue;
 
 			}
 
-			if ( uMoore || ( x == 0 || y == 0 ) ) {
+			if ( uMoore || ( x == 0.0 || y == 0.0 ) ) {
 
-				s = int( texture2D( uReadTexture, uv + vec2( x, y ) / uResolution ).r );
-				count += int( s == next );
+				vec2 offset = vec2( x, y ) / uResolution;
+
+				float s = texture2D( uReadTexture, id + offset ).r;
+	
+				if ( s == next )
+				{
+					count++;
+				}
 
 			}
 
@@ -59,12 +66,12 @@ void main() {
 
     }
 
-	if ( count >= uThreshold ) {
+	if ( count >= float( uThreshold ) ) {
 
-		state = mod( float( state + 1. ), float( uNStates ) );
+		state = mod( state + 1., float( uNStates ) );
 
 	}
 
-    gl_FragColor = vec4( state, s, count, 1.0 );
+    gl_FragColor.rgb = vec3( state, count, 0. );
 
 }

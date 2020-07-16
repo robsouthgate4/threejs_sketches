@@ -7,7 +7,13 @@ import {
 	TextureLoader,
 	FloatType,
 	NearestFilter,
-	RepeatWrapping 
+	RepeatWrapping, 
+  UnsignedByteType,
+  RGBM16Encoding,
+  LinearMipMapNearestFilter,
+  LinearEncoding,
+  LuminanceFormat,
+  ClampToEdgeWrapping
 } from "three";
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
@@ -22,9 +28,8 @@ export default class WebGLUtils {
     
         let fbo                     = new WebGLRenderTarget( window.innerWidth, window.innerHeight );
         fbo.texture.format          = RGBAFormat;
-        fbo.texture.minFilter       = NearestFilter;
-        fbo.texture.magFilter       = NearestFilter;
-        fbo.texture.generateMipmaps = false;
+        fbo.texture.minFilter       = LinearMipMapNearestFilter;
+        fbo.texture.magFilter       = LinearMipMapNearestFilter;
         
     
         if ( useDepth ) {
@@ -45,30 +50,25 @@ export default class WebGLUtils {
       let rt1 = new WebGLRenderTarget(w, h, {
 
           type:             FloatType,
-          minFilter:        filtering || NearestFilter,
-          magFilter:        filtering || NearestFilter,
-          wrapS:            RepeatWrapping,
-          wrapT:            RepeatWrapping,
+          minFilter:        LinearMipMapNearestFilter,
+          magFilter:        LinearMipMapNearestFilter,
+          wrapS:            ClampToEdgeWrapping,
+          wrapT:            ClampToEdgeWrapping,
           format:           RGBAFormat,
-          depthBuffer:      false,
-          stencilBuffer:    false,
-          anisotropy:       1,
-          generateMipmaps:  false
+          encoding:         LinearEncoding
 
       });
+      
   
       let rt2 = new WebGLRenderTarget(w, h, {
 
         type:             FloatType,
-        minFilter:        filtering || NearestFilter,
-        magFilter:        filtering || NearestFilter,
-        wrapS:            RepeatWrapping,
-        wrapT:            RepeatWrapping,
+        minFilter:        LinearMipMapNearestFilter,
+        magFilter:        LinearMipMapNearestFilter,
+        wrapS:            ClampToEdgeWrapping,
+        wrapT:            ClampToEdgeWrapping,
         format:           RGBAFormat,
-        depthBuffer:      false,
-        stencilBuffer:    false,
-        anisotropy:       1,
-        generateMipmaps:  false
+        encoding:         LinearEncoding
 
     });
   

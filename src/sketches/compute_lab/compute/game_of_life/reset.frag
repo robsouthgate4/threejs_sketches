@@ -1,4 +1,6 @@
 
+precision highp float;
+
 uniform vec2 		uResolution;
 uniform float		uSeed;
 uniform int			uNStates;
