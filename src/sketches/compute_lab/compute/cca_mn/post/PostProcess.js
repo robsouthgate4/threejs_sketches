@@ -1,22 +1,22 @@
-import { Scene, Mesh, OrthographicCamera, ShaderMaterial, PlaneBufferGeometry, MeshNormalMaterial, Vector2, RGBADepthPacking, NoBlending, WebGLRenderTarget, NearestFilter, Color, MeshDepthMaterial } from "three";
-import MeshUVsMaterial  from '../../../common/materials/MeshUvsMaterial';
-import WebGLUtils       from '../../../WebGLUtils'
+import { Scene, Mesh, OrthographicCamera, ShaderMaterial, PlaneBufferGeometry, MeshNormalMaterial, Vector2, RGBADepthPacking, NoBlending, WebGLRenderTarget, NearestFilter } from "three";
+import MeshUVsMaterial  from '../../../../../common/materials/MeshUvsMaterial';
+import WebGLUtils       from '../../../../../WebGLUtils'
 import postVert         from "../shaders/post/post.vert";
 import postFrag         from "../shaders/post/post.frag";
 import PostBoxBlurPass  from "./PostBoxBlurPass";
 import DOFPass          from "./DOFPass";
-
-import MeshPositionMaterial from "../../../common/materials/MeshPositionMaterial";
+import FBOHelper        from '../../../../../libs/THREE.FBOHelper'
+import { Color, MeshDepthMaterial, RawShaderMaterial } from "three/build/three.module";
 
 
 export default class PostProcess {
 
-    constructor( { scene, camera, renderer, fboHelper } ) {
+    constructor( scene, camera, renderer ) {
 
-        this.scene     = scene;
+        
         this.postScene = new Scene();
 
-        this.fboHelper = fboHelper;
+        this.fboHelper = new FBOHelper( renderer );
         this.fboHelper.setSize( window.innerWidth, window.innerHeight );
         
 
@@ -55,13 +55,13 @@ export default class PostProcess {
         // Setup passes
 
         this.postBlurPass = new PostBoxBlurPass( this.blurFBO.texture );
-        this.scene.add( this.postBlurPass.quad );
+        scene.add( this.postBlurPass.quad );
 
         this.dofPass      = new DOFPass( camera );
-        this.scene.add( this.dofPass.quad );
+        scene.add( this.dofPass.quad );
 
         this.postCamera     = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
-        this.postMaterial   = new ShaderMaterial( {
+        this.postMaterial   = new RawShaderMaterial( {
 
             vertexShader:   postVert,
             fragmentShader: postFrag,
@@ -74,6 +74,8 @@ export default class PostProcess {
                 tNormal:    { value: null },
                 tUV:        { value: null },
                 tRainbow:   { value: null },
+                uNStates:   { value: null },
+                uThreshold: { value: null },
                 resolution: { value: new Vector2( window.innerWidth, window.innerHeight ) } 
             }
     
@@ -100,7 +102,7 @@ export default class PostProcess {
 
     }
 
-    render( renderer, scene, camera ) {
+    render( renderer, scene, camera, readTexture ) {
 
         
 
@@ -110,45 +112,9 @@ export default class PostProcess {
         renderer.render( scene, camera );
         renderer.setRenderTarget( null );
 
-        // Blit depth texture
-
-        scene.overrideMaterial = this.materialDepth;
-
-		this.oldClearColor.copy( renderer.getClearColor() );
-		var oldClearAlpha   = renderer.getClearAlpha();
-		var oldAutoClear    = renderer.autoClear;
-		renderer.autoClear  = false;
-
-		renderer.setClearColor( 0xffffff );
-		renderer.setClearAlpha( 1.0 );
-		renderer.setRenderTarget( this.depthFBO );
-		renderer.clear();
-        renderer.render( scene, camera );        
-        renderer.setRenderTarget( null );
-        
-        scene.overrideMaterial = null;
-
-        
-        this.dofPass.material.uniforms.tColor.value              = this.sceneFBO.texture;
-        this.dofPass.material.uniforms.uNearClip.value           = camera.near;
-		this.dofPass.material.uniforms.uFarClip.value            = camera.far;
-        this.dofPass.material.uniforms.uResolution.value         = new Vector2( window.innerWidth, window.innerHeight);
-        this.dofPass.material.uniforms.tDepth.value              = this.depthFBO.texture;
-
-        
-        this.dofPass.render( renderer, scene, camera, this.dofFBO );
-
-        
-        renderer.setClearColor( this.oldClearColor );
-        renderer.setClearAlpha( oldClearAlpha );
-        renderer.autoClear = oldAutoClear;
-
         // Final composition
 
-        this.postMaterial.uniforms.tDiffuse.value   = this.dofFBO.texture;
-        this.postMaterial.uniforms.tDepth.value     = this.sceneFBO.depthTexture;
-        this.postMaterial.uniforms.tNormal.value    = this.normalFBO.texture;
-        this.postMaterial.uniforms.tUV.value        = this.uvFBO.texture;
+        this.postMaterial.uniforms.tDiffuse.value   = readTexture;
 
 
         renderer.render( this.postScene, this.postCamera );

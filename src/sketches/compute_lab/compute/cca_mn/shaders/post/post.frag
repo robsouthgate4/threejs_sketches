@@ -86,7 +86,7 @@ void main() {
 
     }
 
-    if ( false ) {
+    if ( true ) {
 
 		hsb.x = hsb.y = hsb.z = s;
 		hsb.x = mix(.3, .0, hsb.x);

@@ -37,7 +37,7 @@ void main() {
 	float count = 0.;
 	float next  = state + 1. == float( uNStates ) ? 0. : state + 1.;
 
-	const float range = 1.0;
+	const float range = 2.0;
 
     for ( float x = -range; x <= range; x ++ ) {
 

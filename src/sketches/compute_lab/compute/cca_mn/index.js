@@ -262,7 +262,7 @@ export default class {
 
             requestAnimationFrame( () => this.render() );
 
-        }, 1000 / 20 );
+        }, 1000 / 60 );
 
         
 

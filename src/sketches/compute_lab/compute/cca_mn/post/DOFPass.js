@@ -3,7 +3,6 @@ import dofFragmentShader from '../shaders/dof/dof.frag';
 
 import { Mesh, PlaneBufferGeometry, RawShaderMaterial, Vector2, RGBADepthPacking, NoBlending } from "three";
 import { MeshDepthMaterial, Color } from 'three/build/three.module';
-import WebGLUtils from '../../../WebGLUtils';
 
 export default class DOFPass {
 
@@ -11,7 +10,7 @@ export default class DOFPass {
 
 		this.focus =  10.0;
 		this.aspect = camera.aspect;
-		this.aperture = 0.000004;
+		this.aperture = 0.000000;
 		this.maxblur =  0.01;		
 		
 		this.uniforms = {
