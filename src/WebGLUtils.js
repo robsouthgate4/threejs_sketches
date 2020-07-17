@@ -1,4 +1,4 @@
-import {  
+import {
 	WebGLRenderTarget,
 	DepthTexture,
 	RGBAFormat,
@@ -7,128 +7,128 @@ import {
 	TextureLoader,
 	FloatType,
 	NearestFilter,
-	RepeatWrapping, 
-  UnsignedByteType,
-  RGBM16Encoding,
-  LinearMipMapNearestFilter,
-  LinearEncoding,
-  LuminanceFormat,
-  ClampToEdgeWrapping
+	RepeatWrapping,
+	UnsignedByteType,
+	RGBM16Encoding,
+	LinearMipMapNearestFilter,
+	LinearEncoding,
+	LuminanceFormat,
+	ClampToEdgeWrapping
 } from "three";
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 
-const fbxLoader     = new FBXLoader();
-const tl            = new TextureLoader();
+const fbxLoader = new FBXLoader();
+const tl 		= new TextureLoader();
 
 export default class WebGLUtils {
-    
 
-    static CreateFBO( useDepth ) {
-    
-        let fbo                     = new WebGLRenderTarget( window.innerWidth, window.innerHeight );
-        fbo.texture.format          = RGBAFormat;
-        fbo.texture.minFilter       = LinearMipMapNearestFilter;
-        fbo.texture.magFilter       = LinearMipMapNearestFilter;
-        
-    
-        if ( useDepth ) {
 
-            fbo.depthBuffer             = true;
-            fbo.depthTexture            = new DepthTexture();
-            fbo.depthTexture.format     = DepthFormat;
-            fbo.depthTexture.type       = UnsignedShortType;
-    
-        }    
-    
-        return fbo;
-    
-    }
+	static CreateFBO(useDepth) {
 
-    static CreateDoubleFBO ( w, h, filtering ) {
-        
-      let rt1 = new WebGLRenderTarget(w, h, {
+		let fbo = new WebGLRenderTarget(window.innerWidth, window.innerHeight);
+		fbo.texture.format = RGBAFormat;
+		fbo.texture.minFilter = LinearMipMapNearestFilter;
+		fbo.texture.magFilter = LinearMipMapNearestFilter;
 
-          type:             FloatType,
-          minFilter:        LinearMipMapNearestFilter,
-          magFilter:        LinearMipMapNearestFilter,
-          wrapS:            ClampToEdgeWrapping,
-          wrapT:            ClampToEdgeWrapping,
-          format:           RGBAFormat,
-          encoding:         LinearEncoding
 
-      });
-      
-  
-      let rt2 = new WebGLRenderTarget(w, h, {
+		if (useDepth) {
 
-        type:             FloatType,
-        minFilter:        LinearMipMapNearestFilter,
-        magFilter:        LinearMipMapNearestFilter,
-        wrapS:            ClampToEdgeWrapping,
-        wrapT:            ClampToEdgeWrapping,
-        format:           RGBAFormat,
-        encoding:         LinearEncoding
+			fbo.depthBuffer = true;
+			fbo.depthTexture = new DepthTexture();
+			fbo.depthTexture.format = DepthFormat;
+			fbo.depthTexture.type = UnsignedShortType;
 
-    });
-  
-      return {
+		}
 
-          read:  rt1,
-          write: rt2,
+		return fbo;
 
-          swap: function() {
+	}
 
-              let temp    = this.read;
-              this.read   = this.write;
-              this.write  = temp;
+	static CreateDoubleFBO(w, h, filtering) {
 
-          }
+		let rt1 = new WebGLRenderTarget(w, h, {
 
-      }
-  }
+			type: FloatType,
+			minFilter: LinearMipMapNearestFilter,
+			magFilter: LinearMipMapNearestFilter,
+			wrapS: ClampToEdgeWrapping,
+			wrapT: ClampToEdgeWrapping,
+			format: RGBAFormat,
+			encoding: LinearEncoding
 
-    static LoadModelFBX( url ) {
+		});
 
-        return new Promise( ( resolve, reject ) => {
 
-            fbxLoader.load( url, fbx => {
+		let rt2 = new WebGLRenderTarget(w, h, {
 
-                const result = fbx;
-                resolve( result );
+			type: FloatType,
+			minFilter: LinearMipMapNearestFilter,
+			magFilter: LinearMipMapNearestFilter,
+			wrapS: ClampToEdgeWrapping,
+			wrapT: ClampToEdgeWrapping,
+			format: RGBAFormat,
+			encoding: LinearEncoding
 
-            } );
+		});
 
-          } );
+		return {
 
-    }
+			read: rt1,
+			write: rt2,
 
-    static LoadTexture( url ) {
+			swap: function () {
 
-        return new Promise(resolve => {
+				let temp = this.read;
+				this.read = this.write;
+				this.write = temp;
 
-          tl.load( url, data => {
+			}
 
-            if (
+		}
+	}
 
-              !Math.isPowerOfTwo( data.image.width ) ||
-              !Math.isPowerOfTwo( data.image.height )
+	static LoadModelFBX(url) {
 
-            ) {
+		return new Promise((resolve, reject) => {
 
-              console.warn(`>>> "${url}" image size is not power of 2 <<<`);
+			fbxLoader.load(url, fbx => {
 
-            }
-      
-            data.needsUpdate = true;
+				const result = fbx;
+				resolve(result);
 
-            resolve( data );
+			});
 
-          });
+		});
 
-        });
+	}
 
-    }
+	static LoadTexture(url) {
 
-    
+		return new Promise(resolve => {
+
+			tl.load(url, data => {
+
+				if (
+
+					!Math.isPowerOfTwo(data.image.width) ||
+					!Math.isPowerOfTwo(data.image.height)
+
+				) {
+
+					console.warn(`>>> "${url}" image size is not power of 2 <<<`);
+
+				}
+
+				data.needsUpdate = true;
+
+				resolve(data);
+
+			});
+
+		});
+
+	}
+
+
 }
