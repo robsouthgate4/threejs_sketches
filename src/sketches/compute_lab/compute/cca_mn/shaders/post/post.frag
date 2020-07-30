@@ -75,7 +75,7 @@ void main() {
     
     s = s / float( uNStates );
 
-    vec3 hsb            = vec3( 0., .7, 1. ); 
+    vec3 hsb            = vec3( 0., .9, 1. ); 
 
     vec3 state = vec3( s );
 
@@ -86,7 +86,7 @@ void main() {
 
     }
 
-    if ( true ) {
+    if ( false ) {
 
 		hsb.x = hsb.y = hsb.z = s;
 		hsb.x = mix(.3, .0, hsb.x);
@@ -109,13 +109,25 @@ void main() {
 
 	}
 
+    if ( false ) { // cool !
+
+		hsb.x = hsb.y = hsb.z = count;
+		hsb.x = mix(.1, .3, hsb.x);
+		hsb.y += .2;
+		hsb.z = clamp(hsb.z, 0., 1.);
+		state = hsb2rgb( hsb );
+
+	}
+
     if ( false ) {
 
 		hsb.x = hsb.y = hsb.z = count;
-		hsb.x = mix(.7, .3, hsb.x);
-		hsb.y += .7;
+		hsb.x = mix(.1, .2, hsb.y * hsb.x);
+		hsb.y += 0.6;
 		hsb.z = clamp(hsb.z, 0., 1.);
-		state = hsb2rgb( hsb );
+		//rstate = hsb2rgb( hsb );
+        state += hsb2rgb( hsb );
+        state *= 0.5;
 
 	}
 

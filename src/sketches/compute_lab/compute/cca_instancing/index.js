@@ -41,8 +41,8 @@ export default class {
             moore:          true,
             threshold:      3,
             maxThreshold:   25,
-            width:          window.innerWidth,
-            height:         window.innerHeight,
+            width:          1024,
+            height:         1024,
             stepMod:        1,
             stepsPerFrame:  1
 
@@ -155,7 +155,7 @@ export default class {
             uniforms: {
 
                 uTexelSize:       { value: 1 / this.computeSettings.width },
-                uResolution:      { value: new Vector2( window.innerWidth, window.innerHeight ) },
+                uResolution:      { value: new Vector2( this.computeSettings.width, this.computeSettings.height ) },
                 uReadTexture:     { value: this.ccaCompute.read.texture },
                 uWriteTexture:    { value: this.ccaCompute.write.texture },
                 uMaxRange:        { value: this.computeSettings.maxRange },
@@ -178,7 +178,7 @@ export default class {
             uniforms: {
 
                 uTexelSize:       { value: 1 / this.computeSettings.width },
-                uResolution:      { value: new Vector2( window.innerWidth, window.innerHeight ) },
+                uResolution:      { value: new Vector2( this.computeSettings.width, this.computeSettings.height ) },
                 uReadTexture:     { value: this.ccaCompute.read.texture },
                 uWriteTexture:    { value: this.ccaCompute.write.texture },
                 uMaxRange:        { value: this.computeSettings.maxRange },
@@ -214,7 +214,7 @@ export default class {
     resize() {
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
-        this.postProcess.resize( window.innerWidth, window.innerHeight );
+        this.postProcess.resize( this.computeSettings.width, this.computeSettings.height );
 
     }
 
@@ -262,7 +262,7 @@ export default class {
 
             requestAnimationFrame( () => this.render() );
 
-        }, 1000 / 20 );
+        }, 1000 / 60 );
 
         
 

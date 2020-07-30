@@ -50,8 +50,8 @@ export default class WebGLUtils {
 		let rt1 = new WebGLRenderTarget(w, h, {
 
 			type: FloatType,
-			minFilter: LinearMipMapNearestFilter,
-			magFilter: LinearMipMapNearestFilter,
+			minFilter: NearestFilter,
+			magFilter: NearestFilter,
 			wrapS: ClampToEdgeWrapping,
 			wrapT: ClampToEdgeWrapping,
 			format: RGBAFormat,
@@ -63,8 +63,8 @@ export default class WebGLUtils {
 		let rt2 = new WebGLRenderTarget(w, h, {
 
 			type: FloatType,
-			minFilter: LinearMipMapNearestFilter,
-			magFilter: LinearMipMapNearestFilter,
+			minFilter: NearestFilter,
+			magFilter: NearestFilter,
 			wrapS: ClampToEdgeWrapping,
 			wrapT: ClampToEdgeWrapping,
 			format: RGBAFormat,

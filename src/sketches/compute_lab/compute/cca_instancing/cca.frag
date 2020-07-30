@@ -28,11 +28,6 @@ vec3 hsb2rgb( in vec3 c ){
 
 }
 
-float getR( vec2 offset ) {
-
-	return ( texture2D( uReadTexture, ( gl_FragCoord.xy + offset ) / uResolution ).r );
-}
-
 void main() {
 
 	vec2 id = vUv;
@@ -40,9 +35,29 @@ void main() {
 	float state = texture2D( uReadTexture, id ).r;
 	
 	float count = 0.;
-	float next  = state + 1. == float( uNStates ) ? 0. : state + 1.;
+	
+	float next1  = state + 1. == float( uNStates ) ? 0. : state + 1.;
+	// float next2  = 0.; 
 
-	const float range = 2.0;
+	// if ( next1 >= 0. && next1 <= 17. )
+	// {
+	// 	next1 = 0.;
+	// }
+	// if ( next1 >= 40. && next1 <= 42. )
+	// {
+	// 	next1 = 1.;
+	// }
+
+	// if ( next2 >= 10. && next2 <= 13. )
+	// {
+	// 	next2 = 1.;
+	// }
+	// if ( next2 >= 9. && next2 <= 21. )
+	// {
+	// 	next2 = 0.;
+	// }
+
+	const float range = 1.0;
 
     for ( float x = -range; x <= range; x ++ ) {
 
@@ -60,7 +75,7 @@ void main() {
 
 				float s = texture2D( uReadTexture, id + offset ).r;
 	
-				if ( s == next )
+				if ( s == next1 )
 				{
 					count++;
 				}
