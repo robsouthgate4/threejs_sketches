@@ -5,7 +5,7 @@ import PostProcess          from './post/PostProcess';
 import GPGPU                from '../../common/gpgpu';
 import Controls             from "./Controls";
 import FBOHelper            from '../../libs/THREE.FBOHelper'
-import { PlaneGeometry } from "three/build/three.module";
+import { PlaneGeometry }    from "three/build/three.module";
 
 export default class {
 

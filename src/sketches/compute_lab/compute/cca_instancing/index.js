@@ -1,13 +1,15 @@
 
-import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial, PlaneBufferGeometry, LinearFilter } from "three";
+import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial, PlaneBufferGeometry, LinearFilter, BoxGeometry } from "three";
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls';
 import PostProcess          from './post/PostProcess';
 import ccaVert              from './cca.vert';
 import ccaFrag              from './cca.frag';
 import resetFrag            from './reset.frag';
-import { ShaderMaterial, Vector2, Clock, RawShaderMaterial } from "three/build/three.module";
+import { ShaderMaterial, Vector2, Clock, RawShaderMaterial, PlaneGeometry } from "three/build/three.module";
 import WebGLUtils from "../../../../WebGLUtils";
 import * as dat from 'dat.gui';
+import FBOHelper from "../../../../libs/THREE.FBOHelper";
+import CCAMould from "./materials/heightMap/ccaMould";
 
 export default class {
 
@@ -15,22 +17,28 @@ export default class {
 
         this.renderer               = new WebGLRenderer();
         this.renderer.setPixelRatio( window.devicePixelRatio );
+
+        this.fboHelper = new FBOHelper( this.renderer );
+        this.fboHelper.setSize( window.innerWidth, window.innerHeight );
         
         this.clock = new Clock( true );
 
-        this.camera                 = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 2.0, 2000 );
-        this.camera.position.set( 0, 0, 1 );
+        this.camera                 = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.001, 2000 );
+        this.camera.position.set( 0, 0, 3 );
 
-        this.orbitControls                  = new OrbitControls( this.camera, this.renderer.domElement );
+        this.bufferCamera                 = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.001, 2000 );
+        this.bufferCamera.position.set( 0, 0, 2 );
+
+        this.orbitControls                  = new OrbitControls( this.bufferCamera, this.renderer.domElement );
         this.orbitControls.enableDamping    = true;
         this.orbitControls.rotateSpeed      = 0.2;
         this.orbitControls.dampingFactor    = 0.05;
         this.orbitControls.maxDistance      = 750;
         this.orbitControls.minZoom          = 300;
         this.orbitControls.panSpeed         = 0.2;
-        this.orbitControls.autoRotate       = true;
+        this.orbitControls.autoRotate       = false;
         this.orbitControls.autoRotateSpeed  = 0.6;
-        this.orbitControls.maxPolarAngle = Math.PI / 2.3;
+        //this.orbitControls.maxPolarAngle = Math.PI / 2.3;
 
         this.computeSettings = {
 
@@ -41,8 +49,8 @@ export default class {
             moore:          true,
             threshold:      3,
             maxThreshold:   25,
-            width:          1024,
-            height:         1024,
+            width:          512,
+            height:         512,
             stepMod:        1,
             stepsPerFrame:  1
 
@@ -55,9 +63,13 @@ export default class {
         this.ccaPass;
         this.resetPass;
         this.scene                  = new Scene();
+
+        this.bufferScene            = new Scene();
+        this.bufferScene.background = new Color( "white" );
+
         //this.renderer.setClearColor( new Color( 'rgb( 20, 20, 20 )' ) );
 
-        this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
+        //this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
 
         const supportsExtension = true;
 
@@ -74,7 +86,7 @@ export default class {
 
         this.initFBOS();
         this.createPasses();
-        this.createGUI();
+        //this.createGUI();
         this.resetCompute();
         
         window.addEventListener( 'keydown', ( e ) => {
@@ -111,6 +123,17 @@ export default class {
 
         } );
 
+
+        this.planeGeo       = new PlaneGeometry( 1, 1, 512, 512 );
+        this.planeMaterial  = new CCAMould();
+        
+        this.planeMaterial.uniforms.ccaMap.value = this.ccaCompute.read.texture;
+
+        this.planeMesh      = new Mesh( this.planeGeo, this.planeMaterial );
+
+        this.bufferScene.add( this.planeMesh );
+
+
     }
 
     randomiseParams() {
@@ -143,7 +166,11 @@ export default class {
 
     initFBOS() {
 
+        this.sceneFBO   = WebGLUtils.CreateFBO( window.innerWidth, window.innerHeight );
         this.ccaCompute = WebGLUtils.CreateDoubleFBO( this.computeSettings.width, this.computeSettings.height, LinearFilter );
+
+        this.fboHelper.attach( this.sceneFBO.texture, 'scene' );
+        this.fboHelper.attach( this.ccaCompute.read.texture, 'cca read' );
   
 
     }
@@ -214,7 +241,7 @@ export default class {
     resize() {
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
-        this.postProcess.resize( this.computeSettings.width, this.computeSettings.height );
+        // this.postProcess.resize( this.computeSettings.width, this.computeSettings.height );
 
     }
 
@@ -233,6 +260,8 @@ export default class {
 
         this.dt = this.clock.getDelta();
 
+        // e
+
         this.quadMesh.material                      = this.ccaPass;
         this.ccaPass.uniforms.uDeltaTime.value      = this.dt;
         this.ccaPass.uniforms.uReadTexture.value    = this.ccaCompute.read.texture;
@@ -247,14 +276,18 @@ export default class {
         this.renderer.render( this.scene, this.camera );
         this.renderer.setRenderTarget( null );
 
-        this.ccaCompute.swap();               
+        this.quadMesh.material                      = this.ccaPass;
+
+        this.ccaCompute.swap();
+
+        this.renderer.render( this.bufferScene, this.bufferCamera );
 
         // Render using our custom postprocess class
 
-        this.postProcess.postMaterial.uniforms.uNStates.value   = this.computeSettings.nStates;
-        this.postProcess.postMaterial.uniforms.uThreshold.value = this.computeSettings.threshold;
+        // this.postProcess.postMaterial.uniforms.uNStates.value   = this.computeSettings.nStates;
+        // this.postProcess.postMaterial.uniforms.uThreshold.value = this.computeSettings.threshold;
 
-        this.postProcess.render( this.renderer, this.scene, this.camera, this.ccaCompute.read.texture );
+        // this.postProcess.render( this.renderer, this.scene, this.camera, this.ccaCompute.read.texture );
 
         //this.renderer.render( this.scene, this.camera );
 
@@ -265,7 +298,7 @@ export default class {
         }, 1000 / 60 );
 
         
-
+        this.fboHelper.update();
         this.orbitControls.update();
 
     }

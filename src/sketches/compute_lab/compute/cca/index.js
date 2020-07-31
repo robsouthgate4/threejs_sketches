@@ -1,11 +1,11 @@
 
-import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, Color, DirectionalLight, DoubleSide, FrontSide, LinearEncoding, LinearMipMapLinearFilter, NearestFilter, LinearMipMapNearestFilter, NeverDepth, GreaterDepth, LessEqualDepth, MeshStandardMaterial, PlaneBufferGeometry, LinearFilter } from "three";
+import { Scene, Mesh,  MeshBasicMaterial, TextureLoader, WebGLRenderer, PerspectiveCamera, PlaneBufferGeometry, LinearFilter } from "three";
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls';
 import PostProcess          from './post/PostProcess';
 import ccaVert              from './cca.vert';
 import ccaFrag              from './cca.frag';
 import resetFrag            from './reset.frag';
-import { ShaderMaterial, Vector2, Clock, RawShaderMaterial } from "three/build/three.module";
+import { ShaderMaterial, Vector2, Clock, RawShaderMaterial, PlaneGeometry } from "three/build/three.module";
 import WebGLUtils from "../../../../WebGLUtils";
 import * as dat from 'dat.gui';
 
@@ -55,6 +55,8 @@ export default class {
         this.ccaPass;
         this.resetPass;
         this.scene                  = new Scene();
+
+
         //this.renderer.setClearColor( new Color( 'rgb( 20, 20, 20 )' ) );
 
         this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
@@ -110,7 +112,7 @@ export default class {
             }   
 
         } );
-
+        
     }
 
     randomiseParams() {
