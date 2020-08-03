@@ -75,7 +75,7 @@ void main() {
     
     s = s / float( uNStates );
 
-    vec3 hsb            = vec3( 0., .9, 1. ); 
+    vec3 hsb            = vec3( 0., .7, 1. ); 
 
     vec3 state = vec3( s );
 
@@ -98,22 +98,29 @@ void main() {
 
     if ( false ) {
 
-		hsb.x = hsb.y = hsb.z = s;
+		hsb.x = hsb.y = hsb.z = count;
 		hsb.x = mix(.3, .0, hsb.x);
 		hsb.y += .7;
 		hsb.z -= .5;
-		hsb.z *= 5.;
-		hsb.z = clamp(hsb.z, 0., 1.);
+
+		hsb.z *= 1.;
+
+		hsb.z = clamp( hsb.z, 0., 1. );
+
+        hsb.z /= count;
+
+        hsb.x += count + float( uNStates ) * 100.;
+
 		state += hsb2rgb(hsb);
 		state *= .7;
 
 	}
 
-    if ( false ) { // cool !
+    if ( false ) {
 
 		hsb.x = hsb.y = hsb.z = count;
-		hsb.x = mix(.1, .3, hsb.x);
-		hsb.y += .2;
+		hsb.x = mix(.7, .3, hsb.x);
+		hsb.y += .7;
 		hsb.z = clamp(hsb.z, 0., 1.);
 		state = hsb2rgb( hsb );
 
@@ -121,23 +128,11 @@ void main() {
 
     if ( false ) {
 
-		hsb.x = hsb.y = hsb.z = count;
-		hsb.x = mix(.1, .2, hsb.y * hsb.x);
-		hsb.y += 0.6;
-		hsb.z = clamp(hsb.z, 0., 1.);
-		//rstate = hsb2rgb( hsb );
-        state += hsb2rgb( hsb );
-        state *= 0.5;
-
-	}
-
-    if ( false ) {
-
-		hsb.x = hsb.y = hsb.z = count;
+		hsb.x = hsb.y = hsb.z = count * 10.;
 		//hsb.x = lerp(.4, 1, hsb.x);  	// 1/3/4 M
-		hsb.x = mix(0., .1, hsb.x);  	// 8/14/2/N
-		hsb.y += .7;
-		state += hsb2rgb(hsb);
+		hsb.x = mix(0.9, .1, hsb.x);  	// 8/14/2/N
+		hsb.y += 5.7;
+		state += hsb2rgb( hsb );
 		//state *= .90; // 1/3/4/M
 		state *= .70;
 
@@ -150,7 +145,9 @@ void main() {
     // }
 
     id -= 0.5;
+
     id.x *= resolution.x / resolution.y;
+
     float d = length( id );
 
     gl_FragColor.rgb    = state;

@@ -2,7 +2,7 @@
 
 import "./style.css";
 
-import Scene from "./sketches/compute_lab/compute/cca_instancing/index";
+import Scene from "./sketches/compute_lab/compute/cca_multi/index";
 
 const activeScene = new Scene(); 
 

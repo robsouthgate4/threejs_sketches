@@ -47,10 +47,10 @@ export default class {
             maxStates:      20,
             nStates:        4,
             moore:          true,
-            threshold:      3,
+            threshold:      8,
             maxThreshold:   25,
-            width:          512,
-            height:         512,
+            width:          1024,
+            height:         1024,
             stepMod:        1,
             stepsPerFrame:  1
 
@@ -65,9 +65,9 @@ export default class {
         this.scene                  = new Scene();
 
         this.bufferScene            = new Scene();
-        this.bufferScene.background = new Color( "white" );
+        //this.bufferScene.background = new Color( "white" );
 
-        //this.renderer.setClearColor( new Color( 'rgb( 20, 20, 20 )' ) );
+        this.renderer.setClearColor( new Color( 'rgb( 255,	213,	211			 )' ) );
 
         //this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
 
@@ -86,7 +86,7 @@ export default class {
 
         this.initFBOS();
         this.createPasses();
-        //this.createGUI();
+        this.createGUI();
         this.resetCompute();
         
         window.addEventListener( 'keydown', ( e ) => {
@@ -124,7 +124,7 @@ export default class {
         } );
 
 
-        this.planeGeo       = new PlaneGeometry( 1, 1, 512, 512 );
+        this.planeGeo       = new PlaneGeometry( 1, 1, 256, 256 );
         this.planeMaterial  = new CCAMould();
         
         this.planeMaterial.uniforms.ccaMap.value = this.ccaCompute.read.texture;
@@ -276,8 +276,6 @@ export default class {
         this.renderer.render( this.scene, this.camera );
         this.renderer.setRenderTarget( null );
 
-        this.quadMesh.material                      = this.ccaPass;
-
         this.ccaCompute.swap();
 
         this.renderer.render( this.bufferScene, this.bufferCamera );
@@ -295,11 +293,14 @@ export default class {
 
             requestAnimationFrame( () => this.render() );
 
-        }, 1000 / 60 );
+        }, 1000 / 30 );
 
         
         this.fboHelper.update();
-        this.orbitControls.update();
+        //this.orbitControls.update();
+
+        // this.planeMesh.rotation.x = Math.sin( this.clock.elapsedTime * 0.5 ) * 0.3;
+        // this.planeMesh.rotation.y = Math.cos( this.clock.elapsedTime * 0.5 ) * 0.3;
 
     }
 

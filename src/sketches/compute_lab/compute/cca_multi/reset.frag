@@ -22,8 +22,15 @@ void main() {
 
 	int rand 		= int( Random( id * 1. ).x * float( uNStates ) );
 
-	vec3 write      = vec3( rand, rand, rand ); 	
+	vec3 write      = vec3( rand, rand, rand );
 
-    gl_FragColor 	= vec4( write, 1.0 );
+	
+	id -= 0.5;
+
+    //id.x *= resolution.x / resolution.y;
+
+    float d = 1.0 - length( id ); 	
+
+    gl_FragColor 	= vec4( write * step( 0.91, d ), 1.0 );
 
 }

@@ -13,7 +13,7 @@ export default class CCAMould extends ShaderMaterial {
 
         }
 
-        super( { vertexShader, fragmentShader, uniforms } );
+        super( { vertexShader, fragmentShader, uniforms, transparent: true } );
 
     }
 

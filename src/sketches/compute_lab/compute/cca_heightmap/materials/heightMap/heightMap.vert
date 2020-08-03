@@ -1,4 +1,7 @@
 varying vec2 vUv;
+varying vec3 vNormal;
+varying vec3 vFragPos;
+varying vec3 vPosition;
 
 uniform sampler2D ccaMap;
 
@@ -10,8 +13,14 @@ void main() {
 
     vec3 pos    = position; 
 
-    pos.z += color.r * 0.01;
+    pos.z += (color.r * 1.0) * 0.02;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
+
+    vFragPos    = ( modelMatrix * vec4( pos, 1.0 ) ).xyz;
+
+    vPosition   = pos;
+
+    vNormal     = normal + vFragPos;
 
 }

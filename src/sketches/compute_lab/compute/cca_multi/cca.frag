@@ -32,33 +32,13 @@ void main() {
 
 	vec2 id = vUv;
 
-	float state = texture2D( uReadTexture, id ).r;
+	float state1 = texture2D( uReadTexture, id ).r;
 	
 	float count = 0.;
 	
-	float next1  = state + 1. == float( uNStates ) ? 0. : state + 1.;
-	
-	// float next2  = 0.; 
+	float next1  = state1 + 1. == float( uNStates ) ? 0. : state1 + 1.;
 
-	// if ( next1 >= 0. && next1 <= 17. )
-	// {
-	// 	next1 = 0.;
-	// }
-	// if ( next1 >= 40. && next1 <= 42. )
-	// {
-	// 	next1 = 1.;
-	// }
-
-	// if ( next2 >= 10. && next2 <= 13. )
-	// {
-	// 	next2 = 1.;
-	// }
-	// if ( next2 >= 9. && next2 <= 21. )
-	// {
-	// 	next2 = 0.;
-	// }
-
-	const float range = 1.0;
+	const float range = 2.0;
 
     for ( float x = -range; x <= range; x ++ ) {
 
@@ -89,10 +69,10 @@ void main() {
 
 	if ( count >= float( uThreshold ) ) {
 
-		state = mod( state + 1., float( uNStates ) );
+		state1 = mod( state1 + 1., float( uNStates ) );
 
 	}
 
-    gl_FragColor.rgb = vec3( state );
+    gl_FragColor.rgb = vec3( state1 );
 
 }
