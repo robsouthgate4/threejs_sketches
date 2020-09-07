@@ -11,8 +11,10 @@ import {
 } from "three";
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 const fbxLoader     = new FBXLoader();
+const gltfLoader    = new GLTFLoader();
 const tl            = new TextureLoader();
 
 export default class WebGLUtils {
@@ -101,6 +103,21 @@ export default class WebGLUtils {
           } );
 
     }
+
+    static LoadModelGLTF( url ) {
+
+      return new Promise( ( resolve, reject ) => {
+
+          gltfLoader.load( url, gltf => {
+
+              const result = gltf.scene;
+              resolve( result );
+
+          } );
+
+        } );
+
+  }
 
     static LoadTexture( url ) {
 
