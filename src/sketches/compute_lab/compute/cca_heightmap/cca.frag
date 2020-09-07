@@ -37,6 +37,7 @@ void main() {
 	float count = 0.;
 	
 	float next1  = state + 1. == float( uNStates ) ? 0. : state + 1.;
+	
 	// float next2  = 0.; 
 
 	// if ( next1 >= 0. && next1 <= 17. )
@@ -57,7 +58,7 @@ void main() {
 	// 	next2 = 0.;
 	// }
 
-	const float range = 1.0;
+	const float range = 2.0;
 
     for ( float x = -range; x <= range; x ++ ) {
 
@@ -72,7 +73,7 @@ void main() {
 			if ( uMoore || ( x == 0.0 || y == 0.0 ) ) {
 
 				vec2 offset = vec2( x, y ) / uResolution;
-
+				
 				float s = texture2D( uReadTexture, id + offset ).r;
 	
 				if ( s == next1 )
@@ -92,6 +93,6 @@ void main() {
 
 	}
 
-    gl_FragColor.rgb = vec3( state, count, 0. );
+    gl_FragColor.rgb = vec3( state );
 
 }

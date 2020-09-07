@@ -73,7 +73,7 @@ void main() {
     float s             = texture2D( tDiffuse, id ).r;
     float count         = texture2D( tDiffuse, id ).g;
     
-    //s = s / float( uNStates );
+    s = s / float( uNStates );
 
     vec3 hsb            = vec3( 0., .7, 1. ); 
 
@@ -98,12 +98,19 @@ void main() {
 
     if ( false ) {
 
-		hsb.x = hsb.y = hsb.z = s;
+		hsb.x = hsb.y = hsb.z = count;
 		hsb.x = mix(.3, .0, hsb.x);
 		hsb.y += .7;
 		hsb.z -= .5;
-		hsb.z *= 5.;
-		hsb.z = clamp(hsb.z, 0., 1.);
+
+		hsb.z *= 1.;
+
+		hsb.z = clamp( hsb.z, 0., 1. );
+
+        hsb.z /= count;
+
+        hsb.x += count + float( uNStates ) * 100.;
+
 		state += hsb2rgb(hsb);
 		state *= .7;
 
@@ -121,11 +128,11 @@ void main() {
 
     if ( false ) {
 
-		hsb.x = hsb.y = hsb.z = count;
+		hsb.x = hsb.y = hsb.z = count * 10.;
 		//hsb.x = lerp(.4, 1, hsb.x);  	// 1/3/4 M
-		hsb.x = mix(0., .1, hsb.x);  	// 8/14/2/N
-		hsb.y += .7;
-		state += hsb2rgb(hsb);
+		hsb.x = mix(0.9, .1, hsb.x);  	// 8/14/2/N
+		hsb.y += 5.7;
+		state += hsb2rgb( hsb );
 		//state *= .90; // 1/3/4/M
 		state *= .70;
 
@@ -138,7 +145,9 @@ void main() {
     // }
 
     id -= 0.5;
+
     id.x *= resolution.x / resolution.y;
+
     float d = length( id );
 
     gl_FragColor.rgb    = state;

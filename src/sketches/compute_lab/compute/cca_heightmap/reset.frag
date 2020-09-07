@@ -16,7 +16,6 @@ vec2 Random( vec2 p ) {
 
 }
 
-void main() {
 
 	vec2 id 		= vUv;
 
