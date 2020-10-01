@@ -21,23 +21,14 @@ export default class {
         this.camera.position.set( -5.76, 6.81, -4.50 );
 
         this.orbitControls                  = new OrbitControls( this.camera, this.renderer.domElement );
-        // this.orbitControls.enableDamping    = true;
-        // this.orbitControls.rotateSpeed      = 0.2;
-        // this.orbitControls.dampingFactor    = 0.05;
-        // this.orbitControls.maxDistance      = 750;
-        // this.orbitControls.minZoom          = 300;
-        // this.orbitControls.panSpeed         = 0.2;
-        // this.orbitControls.autoRotate       = false;
-        // this.orbitControls.autoRotateSpeed  = 0.6;
-        // this.orbitControls.maxPolarAngle = Math.PI / 2.3;
+        this.orbitControls.enableRotate = false;
     
-        this.planeMesh;
         this.object;
         this.rotor;
         this.modelsLoaded = false;
 
         this.scene                  = new Scene();
-        this.renderer.setClearColor( new Color( 'rgb( 0,255,210 )' ) );
+        this.renderer.setClearColor( new Color( 'rgb( 255,245,245 )' ) );
 
         this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
 
@@ -54,8 +45,6 @@ export default class {
 
         }
 
-        this.cityDiffuse;
-
         this.loadModels();
         this.addLights();
         
@@ -64,7 +53,7 @@ export default class {
 
     addLights() {
 
-        this.scene.add( new HemisphereLight(), new DirectionalLight() )
+        this.scene.add( new HemisphereLight( ), new DirectionalLight( ) )
 
     }
 
@@ -73,11 +62,10 @@ export default class {
         this.object  = await WebGLUtiles.LoadModelGLTF( planeModel );
         this.rotor   = this.object.children[ 1 ];           
 
-        const materialBase          = new MeshStandardMaterial();
-
-        console.log( this.object )
+        const materialBase          = new MeshStandardMaterial( { color: 0xff9999 } );
 
         this.modelsLoaded = true;
+        //this.object.children[ 0 ].material = materialBase
         
         this.scene.add(  this.object );
 
