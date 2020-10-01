@@ -24,7 +24,7 @@ export default class {
         this.orbitControls.maxDistance      = 750;
         this.orbitControls.minZoom          = 300;
         this.orbitControls.panSpeed         = 0.2;
-        //this.orbitControls.autoRotate       = true;
+        this.orbitControls.autoRotate       = true;
         this.orbitControls.autoRotateSpeed  = 0.6;
         this.orbitControls.maxPolarAngle = Math.PI / 2.3;
         
@@ -65,7 +65,7 @@ export default class {
     addLights() {
 
         this.scene.add( new HemisphereLight() )
-        this.scene.add( new PointLight( { intensity: 10 } ) )
+        this.scene.add( new PointLight( new Color( "rgb( 160, 100, 50 )" ), 0 ) )
 
     }
 

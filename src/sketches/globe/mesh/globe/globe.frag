@@ -1,6 +1,6 @@
 
 
-#define STANDARD
+#define PHYSICAL
 
 
 #ifdef PHYSICAL
@@ -20,6 +20,19 @@ uniform sampler2D specMap;
 
 #ifdef TRANSPARENCY
 	uniform float transparency;
+#endif
+
+#define USE_TRANSLUCENCY
+
+ #ifdef USE_TRANSLUCENCY
+ 
+	uniform sampler2D thicknessMap;
+	uniform float thicknessPower;
+	uniform float thicknessScale;
+	uniform float thicknessDistortion;
+	uniform float thicknessAmbient;
+	uniform vec2 thicknessRepeat;
+
 #endif
 
 #ifdef REFLECTIVITY
@@ -103,28 +116,61 @@ float noise (in vec2 _st) {
             (d - b) * u.x * u.y;
 }
 
-#define NUM_OCTAVES 5
-
-float fbm ( in vec2 _st) {
-    float v = 0.0;
-    float a = 0.5;
-    vec2 shift = vec2(100.0);
-    // Rotate to reduce axial bias
-    mat2 rot = mat2(cos(0.5), sin(0.5),
-                    -sin(0.5), cos(0.50));
-    for (int i = 0; i < NUM_OCTAVES; ++i) {
-        v += a * noise(_st);
-        _st = rot * _st * 2.0 + shift;
-        a *= 0.5;
-    }
-    return v;
+//----------------------------------------------------------------------------------------
+float Hash(in vec2 p, in float scale)
+{
+	// This is tiling part, adjusts with the scale...
+	p = mod(p, scale);
+	return fract(sin(dot(p, vec2(27.16898, 38.90563))) * 5151.5473453);
 }
+
+//----------------------------------------------------------------------------------------
+float Noise(in vec2 p, in float scale )
+{
+	vec2 f;
+	
+	p *= scale;
+
+	
+	f = fract(p);		// Separate integer from fractional
+    p = floor(p);
+	
+    f = f*f*(3.0-2.0*f);	// Cosine interpolation approximation
+	
+    float res = mix(mix(Hash(p, 				 scale),
+						Hash(p + vec2(1.0, 0.0), scale), f.x),
+					mix(Hash(p + vec2(0.0, 1.0), scale),
+						Hash(p + vec2(1.0, 1.0), scale), f.x), f.y);
+    return res;
+}
+
+//----------------------------------------------------------------------------------------
+float fbm(in vec2 p)
+{
+    //p += vec2(sin(iTime * .7), cos(iTime * .45))*(.1) + iMouse.xy*.1/iResolution.xy;
+	float f = 0.0;
+	// Change starting scale to any integer value...
+	float scale = 20.;
+    p = mod(p, scale);
+	float amp   = 0.6;
+	
+	for (int i = 0; i < 5; i++)
+	{
+		f += Noise(p, scale) * amp;
+		amp *= .5;
+		// Scale must be multiplied by an integer value...
+		scale *= 2.;
+	}
+	// Clamp it just in case....
+	return min(f, 1.0);
+}
+
 
 void main() {
 
 	#include <clipping_planes_fragment>
 
-	float fbmMask 	= texture2D( specMap, vUv ).r;
+	float oceanMask 	= texture2D( specMap, vUv ).r;
 
 	vec2 screenUvs = gl_FragCoord.xy / vec2( 1000., 1000. );
 
@@ -157,13 +203,13 @@ void main() {
 	
     vec2 newuv = vec2(newu, newv);
 
-	vec2 st = newuv;
+	vec2 st = vUv;
 
-	st *= 30.;
+	st *= 5.;
 
-	vec3 color = vec3(0.0);
+	vec3 oceanNoise = vec3(0.0);
 
-	float oceanPanTime = time * 3.0;
+	float oceanPanTime = time * 1.0;
 
 	vec2 q = vec2(0.);
     q.x = fbm( st + 0.00 * oceanPanTime);
@@ -171,22 +217,18 @@ void main() {
 
     vec2 r = vec2(0.);
     r.x = fbm( st + 1.0*q + vec2( 1.7,9.2 )+ 0.15 * oceanPanTime );
-    r.y = fbm( st + 1.0*q + vec2( 8.3,2.8 )+ 0.726 * oceanPanTime );
+    r.y = fbm( st + 1.0*q + vec2( 2.3,2.8 )+ 0.726 * oceanPanTime );
 
     float f = fbm(st+r);
 
-    color = mix(color,
+    oceanNoise = mix(oceanNoise,
                 vec3( 0.3, 0.2, 0.1 ),
                 clamp(length(r.x),0.0,1.0));
 
-	color *= fbmMask;
-	color *= 1.0;
+	oceanNoise *= oceanMask;
+	oceanNoise *= 1.0;
 
-	//color = mix( color, diffuse, 1.0 - fbmMask );
-
-	vec4 diffuseColor = vec4( diffuse + ( color * fbmMask), opacity );
-
-	
+	vec4 diffuseColor = vec4( diffuse + ( oceanNoise * oceanMask), opacity );
 
 	ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
 	vec3 totalEmissiveRadiance = emissive;
@@ -204,15 +246,66 @@ void main() {
 	#include <clearcoat_normal_fragment_maps>
 	#include <emissivemap_fragment>
 
-	roughnessFactor *= ( 1.0 - fbmMask * 0.8 );
+	roughnessFactor *= ( 1.0 - oceanMask * 0.5 );
 
-	normal.xy += clamp( (color.r * 2.0 - 1.0) * 0.6 * fbmMask, -1.0, 1.0 );
+	//normal.xy += clamp( (color.r * 2.0 - 1.0) * 0.6 * oceanMask, -1.0, 1.0 );
+
+	normal.xy += (normal.xy + (oceanNoise.r * 2.0)) * oceanMask;
 
 	// accumulation
 	#include <lights_physical_fragment>
 	#include <lights_fragment_begin>
 	#include <lights_fragment_maps>
 	#include <lights_fragment_end>
+
+	#ifdef USE_TRANSLUCENCY
+
+		vec3 thicknessColor = vec3(1.0, 1.0, 1.0);
+		//vec3 thickness = thicknessColor * texture2D(thicknessMap, vUv * thicknessRepeat).r;
+		vec3 thickness = vec3(1.0);
+		vec3 N = geometry.normal;
+		vec3 V = normalize(geometry.viewDir);
+		float thicknessCutoff = 0.75;
+		float thicknessDecay = 1.0;
+		
+		#if ( NUM_POINT_LIGHTS > 0 ) && defined( RE_Direct )
+
+		for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) {
+			pointLight = pointLights[ i ];
+			vec3 vLightDir = pointLight.position - geometry.position;
+			vec3 L = normalize(vLightDir);
+			float lightDist = length(vLightDir);
+			float lightAtten = punctualLightIntensityToIrradianceFactor(lightDist, pointLight.distance, pointLight.decay);
+			
+			vec3 LTLight = normalize(L + (N * thicknessDistortion));
+			float LTDot = pow(saturate(dot(V, -LTLight)), thicknessPower) * thicknessScale;
+			vec3 LT = lightAtten * (LTDot + thicknessAmbient) * thickness;
+
+			LT *= abs( sin( time * 0.5 ) ) * oceanMask;
+
+			reflectedLight.directDiffuse += material.diffuseColor * pointLight.color * LT;
+		}
+		#endif
+
+		#if ( NUM_RECT_AREA_LIGHTS > 0 ) && defined( RE_Direct_RectArea )
+		
+		for ( int i = 0; i < NUM_RECT_AREA_LIGHTS; i ++ ) {
+			rectAreaLight = rectAreaLights[ i ];
+			
+			vec3 vLightDir = rectAreaLight.position - geometry.position;
+			vec3 L = normalize(vLightDir);
+			float lightDist = length(vLightDir);
+			float lightAtten = punctualLightIntensityToIrradianceFactor(lightDist, thicknessCutoff, thicknessDecay);
+			
+			vec3 LTLight = normalize(L + (N * thicknessDistortion));
+			float LTDot = pow(saturate(dot(V, -LTLight)), thicknessPower) * thicknessScale;
+			vec3 LT = lightAtten * (LTDot + thicknessAmbient) * thickness;
+			reflectedLight.directDiffuse += material.diffuseColor * rectAreaLight.color * LT;
+		}
+
+		#endif
+
+	#endif
 
 	// modulation
 	#include <aomap_fragment>
