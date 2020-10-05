@@ -38,11 +38,11 @@ export default class GlobeMaterial extends ShaderMaterial {
 			roughness: 	{ value: 0.6 },
 			metalness: 	{ value: 0.9 },
 			specMap: 	{ type: "t", value: specMap },
-			displacementScale: { value: 0.1 },
-			thicknessScale: { value: 10.0 },
+			displacementScale: { value: 0.05 },
+			thicknessScale: { value: 20.0 },
 			thicknessPower: { value: 20. },
 			thicknessAmbient: { value: 0.5 },
-			thicknessDistortion: { value: 0.01 },
+			thicknessDistortion: { value: 0.1 },
 			time:       { value: 0 }
 
 		}

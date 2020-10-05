@@ -100,7 +100,7 @@ export default class {
     addLights() {
 
         this.scene.add( new HemisphereLight() )
-        this.scene.add( new PointLight( new Color( "rgb( 160, 140, 50 )" ), 0 ) )
+        this.scene.add( new PointLight( new Color( "rgb( 180, 140, 50 )" ), 2 ) )
 
     }
 
@@ -136,7 +136,7 @@ export default class {
 
         const time = this.clock.getElapsedTime();
 
-        //this.globeContainer.rotation.y += 0.01;
+        this.globeContainer.rotation.y += 0.001;
 
         this.globe.update( time );
 
