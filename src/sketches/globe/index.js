@@ -3,6 +3,7 @@ import { Scene, HemisphereLight, WebGLRenderer, PerspectiveCamera, Color, Direct
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls'
 import PostProcess          from './post/PostProcess';
 import Globe                from "./mesh/globe/Globe";
+import Camera               from "./Camera";
 
 export default class {
 
@@ -13,22 +14,7 @@ export default class {
 
         this.clock = new Clock( true );
         
-
-        this.camera                 = new PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 2000 );
-        this.camera.position.set( 0, 1, -5 );
-
-        this.orbitControls                  = new OrbitControls( this.camera, this.renderer.domElement );
-        this.orbitControls.enableDamping    = true;
-        this.orbitControls.rotateSpeed      = 0.2;
-        this.orbitControls.dampingFactor    = 0.05;
-        this.orbitControls.maxDistance      = 750;
-        this.orbitControls.minZoom          = 300;
-        this.orbitControls.panSpeed         = 0.2;
-        this.orbitControls.autoRotate       = true;
-        this.orbitControls.autoRotateSpeed  = 0.6;
-        this.orbitControls.maxPolarAngle = Math.PI / 2.3;
-        
-   
+        this.camera = new Camera( { renderer: this.renderer } );   
 
         this.scene                  = new Scene();
         this.renderer.setClearColor( new Color( 'rgb( 30, 20, 10 )' ) );
@@ -65,7 +51,7 @@ export default class {
     addLights() {
 
         this.scene.add( new HemisphereLight() )
-        this.scene.add( new PointLight( new Color( "rgb( 160, 100, 50 )" ), 0 ) )
+        this.scene.add( new PointLight( new Color( "rgb( 160, 140, 50 )" ), 0 ) )
 
     }
 
@@ -79,8 +65,19 @@ export default class {
 
     resize() {
 
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-        this.postProcess.resize( window.innerWidth, window.innerHeight );
+        const canvas = this.renderer.domElement;
+        this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        this.camera.updateProjectionMatrix();
+
+        const pixelRatio = window.devicePixelRatio;
+
+        if ( canvas.width != window.innerWidth || canvas.height != window.innerHeight ) {
+
+            this.renderer.setSize( window.innerWidth, window.innerHeight );
+
+        }
+
+        //this.postProcess.resize( window.innerWidth, window.innerHeight );
 
     }
 
@@ -90,8 +87,11 @@ export default class {
 
         const time = this.clock.getElapsedTime();
 
-        this.orbitControls.update();
         this.globe.update( time );
+
+        this.camera.update( time );
+
+        this.resize();
 
         this.renderer.render( this.scene, this.camera );
 

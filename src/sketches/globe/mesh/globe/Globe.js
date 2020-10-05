@@ -15,6 +15,8 @@ export default class Globe extends Mesh {
 
 	update( time ) {
 
+		this.rotation.y += 0.001;
+
 		this.material.update( time );
 
 	} 

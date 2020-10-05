@@ -271,6 +271,7 @@ void main() {
 		#if ( NUM_POINT_LIGHTS > 0 ) && defined( RE_Direct )
 
 		for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) {
+			
 			pointLight = pointLights[ i ];
 			vec3 vLightDir = pointLight.position - geometry.position;
 			vec3 L = normalize(vLightDir);
@@ -290,6 +291,7 @@ void main() {
 		#if ( NUM_RECT_AREA_LIGHTS > 0 ) && defined( RE_Direct_RectArea )
 		
 		for ( int i = 0; i < NUM_RECT_AREA_LIGHTS; i ++ ) {
+
 			rectAreaLight = rectAreaLights[ i ];
 			
 			vec3 vLightDir = rectAreaLight.position - geometry.position;
@@ -301,6 +303,7 @@ void main() {
 			float LTDot = pow(saturate(dot(V, -LTLight)), thicknessPower) * thicknessScale;
 			vec3 LT = lightAtten * (LTDot + thicknessAmbient) * thickness;
 			reflectedLight.directDiffuse += material.diffuseColor * rectAreaLight.color * LT;
+			
 		}
 
 		#endif

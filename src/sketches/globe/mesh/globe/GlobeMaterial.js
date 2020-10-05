@@ -4,9 +4,11 @@ import frag 			from "./globe.frag";
 import { 
 	ShaderMaterial, 
 	UniformsUtils } 	from "three/build/three.module";
-import diffuse 			from '../../../../../assets/globe_assets/globe_maps/lights.jpg';
+
+import lights 			from '../../../../../assets/globe_assets/globe_maps/lights.jpg';
 import bump 			from '../../../../../assets/globe_assets/globe_maps/bump.jpg';
 import spec 			from '../../../../../assets/globe_assets/globe_maps/spec.jpg';
+
 import { HDRCubeTextureLoader } 	from "three/examples/jsm/loaders/HDRCubeTextureLoader";
 
 function importAll( r ) {
@@ -24,7 +26,7 @@ export default class GlobeMaterial extends ShaderMaterial {
 
 	constructor( { renderer, scene } ) {		
 
-		const colorMap  = new TextureLoader().load( diffuse );
+		const lightsMap = new TextureLoader().load( lights );
 		const bumpMap   = new TextureLoader().load( bump );
 		const specMap	= new TextureLoader().load( spec );
 
@@ -67,6 +69,9 @@ export default class GlobeMaterial extends ShaderMaterial {
 		this.bumpMap					= bumpMap;
 		this.uniforms.bumpMap.value		= bumpMap;
 
+		this.bumpScale					= 0.05;
+		this.uniforms.bumpScale.value	= 0.05;
+
 		this.uniforms.specMap.value		= specMap;
 
 		this.displacementMap					= bumpMap;
@@ -81,8 +86,6 @@ export default class GlobeMaterial extends ShaderMaterial {
 			.load( hdrImages , (  ) => {
 
 				hdrCubeRenderTarget = pmremGenerator.fromCubemap( hdrCubeMap );
-
-				console.log( hdrCubeRenderTarget.texture )
 
 				this.envMap					= hdrCubeRenderTarget.texture;
 				this.uniforms.envMap.value	= hdrCubeRenderTarget.texture;

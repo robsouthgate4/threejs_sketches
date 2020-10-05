@@ -15,6 +15,7 @@
     "glsl-fxaa": "^3.0.0",
     "glsl-tone-map": "^1.0.0",
     "glslify-loader": "^2.0.0",
+    "gsap": "^3.5.1",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
     "style-loader": "^1.2.1",
