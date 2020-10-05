@@ -53,17 +53,25 @@ void main() {
 #endif
 
 	#include <begin_vertex>
+
 	#include <morphtarget_vertex>
+
 	#include <skinning_vertex>
+
 	#include <displacementmap_vertex>
+
 	#include <project_vertex>
+
 	#include <logdepthbuf_vertex>
+
 	#include <clipping_planes_vertex>
 
 	vViewPosition = - mvPosition.xyz;
 
 	#include <worldpos_vertex>
+
 	#include <shadowmap_vertex>
+	
 	#include <fog_vertex>
 
 }

@@ -228,7 +228,7 @@ void main() {
 	oceanNoise *= oceanMask;
 	oceanNoise *= 1.0;
 
-	vec4 diffuseColor = vec4( diffuse + ( oceanNoise * oceanMask), opacity );
+	vec4 diffuseColor = vec4( diffuse + ( oceanNoise * oceanMask ), opacity );
 
 	ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
 	vec3 totalEmissiveRadiance = emissive;
@@ -253,6 +253,7 @@ void main() {
 	normal.xy += (normal.xy + (oceanNoise.r * 2.0)) * oceanMask;
 
 	// accumulation
+	
 	#include <lights_physical_fragment>
 	#include <lights_fragment_begin>
 	#include <lights_fragment_maps>
@@ -264,7 +265,7 @@ void main() {
 		//vec3 thickness = thicknessColor * texture2D(thicknessMap, vUv * thicknessRepeat).r;
 		vec3 thickness = vec3(1.0);
 		vec3 N = geometry.normal;
-		vec3 V = normalize(geometry.viewDir);
+		vec3 V = normalize( geometry.viewDir );
 		float thicknessCutoff = 0.75;
 		float thicknessDecay = 1.0;
 		

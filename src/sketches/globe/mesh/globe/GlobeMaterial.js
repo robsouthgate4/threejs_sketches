@@ -3,11 +3,11 @@ import vert 			from "./globe.vert";
 import frag 			from "./globe.frag";
 import { 
 	ShaderMaterial, 
-	UniformsUtils } 	from "three/build/three.module";
+	UniformsUtils } 	from "three";
 
-import lights 			from '../../../../../assets/globe_assets/globe_maps/lights.jpg';
-import bump 			from '../../../../../assets/globe_assets/globe_maps/bump.jpg';
-import spec 			from '../../../../../assets/globe_assets/globe_maps/spec.jpg';
+import lights 			from 'Assets/globe_assets/globe_maps/lights.jpg';
+import bump 			from 'Assets/globe_assets/globe_maps/bump.jpg';
+import spec 			from 'Assets/globe_assets/globe_maps/spec.jpg';
 
 import { HDRCubeTextureLoader } 	from "three/examples/jsm/loaders/HDRCubeTextureLoader";
 
@@ -18,7 +18,7 @@ function importAll( r ) {
 }
   
 const hdrImages = importAll( 
-						require.context('../../../../../assets/globe_assets/globe_maps/hdr', false, /\.(hdr)$/)
+						require.context('Assets/globe_assets/globe_maps/hdr', false, /\.(hdr)$/)
 					).map( ( module ) => module.default );
 
 
@@ -34,7 +34,7 @@ export default class GlobeMaterial extends ShaderMaterial {
 
 		const customUniforms 	= {
 
-			diffuse: 	{ value: new Color( "rgb( 60, 60, 60 )" ) },
+			diffuse: 	{ value: new Color( "rgb( 70, 70, 70 )" ) },
 			roughness: 	{ value: 0.6 },
 			metalness: 	{ value: 0.9 },
 			specMap: 	{ type: "t", value: specMap },

@@ -2,7 +2,7 @@
 
 import "./style.css";
 
-import Scene from "./sketches/globe";
+import Scene from "./Scene";
 
 const activeScene = new Scene(); 
 
