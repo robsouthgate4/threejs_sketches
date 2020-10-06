@@ -3,7 +3,7 @@ import dofFragmentShader from '../shaders/dof/dof.frag';
 
 import { Mesh, PlaneBufferGeometry, RawShaderMaterial, Vector2, RGBADepthPacking, NoBlending } from "three";
 import { MeshDepthMaterial, Color } from 'three/build/three.module';
-import WebGLUtils from '../../../WebGLUtils';
+import Utils from '../../../common/Utils';
 
 export default class DOFPass {
 

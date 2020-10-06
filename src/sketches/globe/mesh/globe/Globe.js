@@ -1,5 +1,6 @@
 import { Mesh, SphereGeometry } from "three";
 import GlobeMaterial 			from "./GlobeMaterial";
+import Emitter					from "Common/Emitter";
 
 export default class Globe extends Mesh {
 
@@ -11,14 +12,26 @@ export default class Globe extends Mesh {
 
 		super( globeGeo, globeMaterial );
 
+		Emitter.on( "lateUpdate", 	this.lateUpdate.bind( this ) );
+		Emitter.on( "update", 		this.update.bind( this ) );
+ 
+
+
 	}
 
-	update( time ) {
+	update( data ) {
 
 		//this.rotation.y -= 0.0005;
 
-		this.material.update( time );
+		console.log( data )
 
-	} 
+		this.material.update( data.elapsed );
+
+	}
+
+	lateUpdate() {
+
+
+	}
 
 }

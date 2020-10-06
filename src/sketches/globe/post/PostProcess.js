@@ -1,6 +1,6 @@
 import { Scene, Mesh, OrthographicCamera, ShaderMaterial, PlaneBufferGeometry, MeshNormalMaterial, Vector2, RGBADepthPacking, NoBlending, WebGLRenderTarget, NearestFilter } from "three";
 import MeshUVsMaterial  from '../../../common/materials/MeshUvsMaterial';
-import WebGLUtils       from '../../../WebGLUtils'
+import Utils       from '../../../common/Utils'
 import postVert         from "../shaders/post/post.vert";
 import postFrag         from "../shaders/post/post.frag";
 import PostBoxBlurPass  from "./PostBoxBlurPass";
@@ -25,12 +25,12 @@ export default class PostProcess {
 
         // Create frame buffers
 
-        this.sceneFBO       = WebGLUtils.CreateFBO( false );
-        this.blurFBO        = WebGLUtils.CreateFBO( false );
-        this.normalFBO      = WebGLUtils.CreateFBO( false );
-        this.uvFBO          = WebGLUtils.CreateFBO( false );
-        this.positionFBO    = WebGLUtils.CreateFBO( false );
-        this.dofFBO         = WebGLUtils.CreateFBO( false );
+        this.sceneFBO       = Utils.CreateFBO( false );
+        this.blurFBO        = Utils.CreateFBO( false );
+        this.normalFBO      = Utils.CreateFBO( false );
+        this.uvFBO          = Utils.CreateFBO( false );
+        this.positionFBO    = Utils.CreateFBO( false );
+        this.dofFBO         = Utils.CreateFBO( false );
         
     
         // depth material

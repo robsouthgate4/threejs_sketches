@@ -20,7 +20,7 @@ const fbxLoader 	= new FBXLoader();
 const gltfLoader 	= new GLTFLoader();
 const tl 			= new TextureLoader();
 
-export default class WebGLUtils {
+export default class Utils {
 
 
 	static CreateFBO( useDepth ) {

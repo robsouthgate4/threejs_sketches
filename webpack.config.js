@@ -18,7 +18,7 @@ module.exports = env => {
 			extensions: [".js", ".wasm"],
 			alias: {
 				Assets: path.resolve(__dirname, 'assets/'),
-				Common: path.resolve(__dirname, 'common/'),
+				Common: path.resolve(__dirname, './src/common/'),
 			},
 		},
 		plugins: [

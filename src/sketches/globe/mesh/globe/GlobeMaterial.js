@@ -1,6 +1,15 @@
-import { Color, DoubleSide, LinearFilter, Material, PMREMGenerator, RepeatWrapping, ShaderLib, sRGBEncoding, TextureLoader, UnsignedByteType, Vector3} from "three";
+import { 
+	Color, 
+	DoubleSide, 
+	PMREMGenerator, 
+	ShaderLib, 
+	TextureLoader, 
+	UnsignedByteType 
+} from "three";
+
 import vert 			from "./globe.vert";
 import frag 			from "./globe.frag";
+
 import { 
 	ShaderMaterial, 
 	UniformsUtils } 	from "three";

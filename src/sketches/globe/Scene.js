@@ -1,15 +1,18 @@
 
-import { Scene, HemisphereLight, WebGLRenderer, Color, Clock, PointLight, CylinderGeometry, Mesh, MeshStandardMaterial, Object3D, TubeGeometry, Math } from "three";
+import { Scene, HemisphereLight, WebGLRenderer, Color, Clock, PointLight, Mesh, MeshStandardMaterial, Object3D, TubeGeometry, Math } from "three";
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls'
 import PostProcess          from './post/PostProcess';
 import Globe                from "./mesh/globe/Globe";
 import Camera               from "./Camera";
-import WebGLUtils           from "../../WebGLUtils";
+import Utils                from "../../common/Utils";
 import { CubeGeometry }     from "three/build/three.module";
+import Base                 from "./Base";
 
-export default class {
+export default class extends Base {
 
     constructor() {
+
+        super();        
 
         this.renderer               = new WebGLRenderer( { antialias: true } );
         this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -19,8 +22,7 @@ export default class {
         this.camera = new Camera( { renderer: this.renderer } );   
 
         this.scene                  = new Scene();
-        this.renderer.setClearColor( new Color( 'rgb( 30, 20, 10 )' ) );
-
+        this.renderer.setClearColor( new Color( 'rgb( 40, 30, 20 )' ) );
         this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
 
         this.globeContainer = new Object3D();
@@ -69,7 +71,7 @@ export default class {
 
             const pinGeo    = new CubeGeometry( 0.0025, 0.0025, city.polution );
             const pinMesh   = new Mesh( pinGeo, new MeshStandardMaterial(  ) );
-            const pos       = WebGLUtils.CalcPosFromLatLonRad( city.lat, city.lon, 1 );
+            const pos       = Utils.CalcPosFromLatLonRad( city.lat, city.lon, 1 );
 
             pinMesh.position.set( pos.x, pos.y, pos.z );
             pinMesh.position.z += 0.0;
@@ -130,21 +132,41 @@ export default class {
 
     }
 
-    render() {
+    onMouseMove( ev ) {
 
-        requestAnimationFrame( () => this.render() );
+        super.onMouseMove( ev );
 
-        const time = this.clock.getElapsedTime();
+    }
 
-        this.globeContainer.rotation.y += 0.001;
+    onTouchEnd( ev ) {
 
-        this.globe.update( time );
+        super.onTouchEnd( ev );
 
-        this.camera.update( time );
+    }
+
+    earlyUpdate( elapsedTime, delta ) {
+
+        super.earlyUpdate();
+
+    }
+
+    update( elapsedTime, delta ) {
+
+        super.update( elapsedTime, delta );
+
+        this.globeContainer.rotation.y += 0.1 * delta;
+        
+        this.camera.update( elapsedTime );
 
         this.resize();
 
         this.renderer.render( this.scene, this.camera );
+
+    }
+
+    lateUpdate( elapsedTime, delta ) {
+
+        super.lateUpdate( elapsedTime, delta );
 
     }
 
