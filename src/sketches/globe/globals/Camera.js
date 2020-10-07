@@ -15,7 +15,7 @@ class Camera extends PerspectiveCamera {
 
 		super( 45, window.innerWidth / window.innerHeight, 0.1, 2000 );
 
-		this.position.set( 0, 0, 3.0 );
+		this.position.set( 0.0, 0.0, 3.0 );
 
 		this.startPos 	= this.position;
 		this.mouse 		= {};
@@ -44,7 +44,7 @@ class Camera extends PerspectiveCamera {
 
 		if ( this.mouse.normalized ) {
 
-			TweenLite.to( this.position, 4, { x: this.mouse.normalized.x * 0.1, y: this.mouse.normalized.y * 0.1 } );
+			//TweenLite.to( this.position, 4, { x: this.mouse.normalized.x * 0.1, y: this.mouse.normalized.y * 0.1 } );
 
 		}
 

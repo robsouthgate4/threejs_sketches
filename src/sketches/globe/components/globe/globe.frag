@@ -263,11 +263,12 @@ void main() {
 
 		vec3 thicknessColor = vec3(1.0, 1.0, 1.0);
 		//vec3 thickness = thicknessColor * texture2D(thicknessMap, vUv * thicknessRepeat).r;
-		vec3 thickness = vec3(1.0);
+		vec3 thickness = thicknessColor * ( 1.0 - oceanMask );
 		vec3 N = geometry.normal;
 		vec3 V = normalize( geometry.viewDir );
-		float thicknessCutoff = 0.75;
-		float thicknessDecay = 1.0;
+
+		float thicknessCutoff 	= 0.75;
+		float thicknessDecay 	= 1.0;
 		
 		#if ( NUM_POINT_LIGHTS > 0 ) && defined( RE_Direct )
 
@@ -283,7 +284,7 @@ void main() {
 			float LTDot = pow(saturate(dot(V, -LTLight)), thicknessPower) * thicknessScale;
 			vec3 LT = lightAtten * (LTDot + thicknessAmbient) * thickness;
 
-			LT *= (1.0 - oceanMask);
+			//LT *= (1.0 - oceanMask);
 
 			reflectedLight.directDiffuse += material.diffuseColor * pointLight.color * LT;
 		}

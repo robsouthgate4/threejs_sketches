@@ -49,8 +49,8 @@ class PostProcess {
 
         } );
 
-        this.blurXShader    = new BlurShader( { direction: new Vector2( 1, 0 ) } );
-        this.blurYShader    = new BlurShader( { direction: new Vector2( 0, 1 ) } );
+        this.blurXShader    = new BlurShader( { direction: new Vector2( 0, 0 ) } );
+        this.blurYShader    = new BlurShader( { direction: new Vector2( 0, 0 ) } );
 
         this.fxaaShader     = new FXAAShader();
         

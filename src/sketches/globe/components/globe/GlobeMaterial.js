@@ -82,13 +82,16 @@ export default class GlobeMaterial extends ShaderMaterial {
 		this.bumpMap					= bumpMap;
 		this.uniforms.bumpMap.value		= bumpMap;
 
-		this.bumpScale					= 0.05;
-		this.uniforms.bumpScale.value	= 0.05;
+		this.bumpScale					= 0.02;
+		this.uniforms.bumpScale.value	= 0.02;
 
 		this.uniforms.specMap.value		= specMap;
 
 		this.displacementMap					= bumpMap;
 		this.uniforms.displacementMap.value		= bumpMap;
+
+		this.displacementScale = 0.03;
+		this.uniforms.displacementScale.value	= 0.03;
 
 		let hdrCubeRenderTarget;
 		
