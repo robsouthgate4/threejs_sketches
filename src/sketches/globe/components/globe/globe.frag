@@ -205,11 +205,11 @@ void main() {
 
 	vec2 st = vUv;
 
-	st *= 5.;
+	st *= 6.;
 
 	vec3 oceanNoise = vec3(0.0);
 
-	float oceanPanTime = time * 1.0;
+	float oceanPanTime = time * 0.6;
 
 	vec2 q = vec2(0.);
     q.x = fbm( st + 0.00 * oceanPanTime);
@@ -246,11 +246,11 @@ void main() {
 	#include <clearcoat_normal_fragment_maps>
 	#include <emissivemap_fragment>
 
-	roughnessFactor *= ( 1.0 - oceanMask * 0.5 );
+	roughnessFactor *= ( 1.0 - oceanMask * 0.4 );
 
 	//normal.xy += clamp( (color.r * 2.0 - 1.0) * 0.6 * oceanMask, -1.0, 1.0 );
 
-	normal.xy += (normal.xy + (oceanNoise.r * 2.0)) * oceanMask;
+	normal.z += (normal.x + (oceanNoise.r * 1.0)) * oceanMask;
 
 	// accumulation
 	
@@ -283,7 +283,7 @@ void main() {
 			float LTDot = pow(saturate(dot(V, -LTLight)), thicknessPower) * thicknessScale;
 			vec3 LT = lightAtten * (LTDot + thicknessAmbient) * thickness;
 
-			LT *= abs( sin( time * 0.5 ) ) * oceanMask;
+			LT *= (1.0 - oceanMask);
 
 			reflectedLight.directDiffuse += material.diffuseColor * pointLight.color * LT;
 		}

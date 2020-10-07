@@ -4,10 +4,10 @@ class Renderer extends WebGLRenderer {
 
 	constructor() {
 
-		super( { canvas: document.getElementById( "c" ) } );
+		super( { canvas: document.getElementById( "c" ), antialias: true } );
 
 		this.setPixelRatio( window.devicePixelRatio );
-		this.setClearColor( new Color( 'rgb( 30, 20, 10 )' ) );
+		this.setClearColor( new Color( "rgb(0, 0, 0)" ) );
 
 		this.setSize( window.innerWidth, window.innerHeight );
 

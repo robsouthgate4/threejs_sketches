@@ -95,13 +95,13 @@ export default class World extends Base {
 
         this.scene.add( new HemisphereLight() )
         
-        const pl1 = new PointLight( new Color( "rgb( 180, 140, 50 )" ), 0.5 );
-        pl1.position.set( 0, 0, 0 );
+        const pl1 = new PointLight( new Color( "rgb( 180, 140, 50 )" ), 0 );
+        pl1.position.set( -0.5, 0.5, 0 );
 
-        // const pl2 = new PointLight( new Color( "rgb( 180, 140, 50 )" ), 0.5 );
-        // pl2.position.set( 0.5, 0, 0 );
+        const pl2 = new PointLight( new Color( "rgb( 180, 140, 50 )" ), 0 );
+        pl2.position.set( 0.5, -0.5, 0 );
 
-        this.scene.add( pl1 );
+        this.scene.add( pl1, pl2 );
 
     }
 

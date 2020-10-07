@@ -14,8 +14,8 @@ void main()
 
     vec4 blurColor 		= blur9( tDiffuse, vUv, uResolution, uStrength );
 
-    // /float blurStrength 	= 1.0 - sin( vUv.y * M_PI );
-    float blurStrength        = pow( distance( vUv, vec2( 0.5 ) ), 0.8 );
+    float blurStrength 	= 1.0 - sin( vUv.y * M_PI );
+    //float blurStrength        = pow( distance( vUv, vec2( 0.5 ) ), 0.8 );
 
     gl_FragColor        = mix( diffuseColor, blurColor, blurStrength );
 	

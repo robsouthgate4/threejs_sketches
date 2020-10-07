@@ -87,6 +87,8 @@ class PostProcess {
 
         this.fxaaPass.render( this.blurYPass.target, true );
 
+        //Renderer.render( Scene, Camera );
+
     }
     
 

@@ -47,8 +47,8 @@ export default class GlobeMaterial extends ShaderMaterial {
 
 		const customUniforms 	= {
 
-			diffuse: 	{ value: new Color( "rgb( 70, 70, 70 )" ) },
-			roughness: 	{ value: 0.6 },
+			diffuse: 	{ value: new Color( "rgb( 100, 100, 100 )" ) },
+			roughness: 	{ value: 0.4 },
 			metalness: 	{ value: 0.9 },
 			specMap: 	{ type: "t", value: specMap },
 			displacementScale: { value: 0.05 },
@@ -114,6 +114,8 @@ export default class GlobeMaterial extends ShaderMaterial {
 	}
 
 	update( data ) {
+
+		console.log( data.elapsed );
 
 		this.uniforms.time.value = data.elapsed;
 
