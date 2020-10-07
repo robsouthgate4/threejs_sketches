@@ -1,46 +1,38 @@
 
-import { Scene, HemisphereLight, WebGLRenderer, Color, Clock, PointLight, Mesh, MeshStandardMaterial, Object3D, TubeGeometry, Math } from "three";
+import { 
+    HemisphereLight, 
+    Color,
+    PointLight, 
+    Mesh, 
+    MeshStandardMaterial, 
+    Object3D, 
+    CubeGeometry,
+    Math } 
+    from "three";
+
 import { OrbitControls }    from 'three/examples/jsm/controls/OrbitControls'
-import PostProcess          from './post/PostProcess';
-import Globe                from "./mesh/globe/Globe";
-import Camera               from "./Camera";
-import Utils                from "../../common/Utils";
-import { CubeGeometry }     from "three/build/three.module";
+import Globe                from "./components/globe/Globe";
+import Camera               from "Globals/Camera";
+import Scene                from "Globals/Scene";;
+import Renderer             from "Globals/Renderer";
+import Utils                from "Common/Utils";
 import Base                 from "./Base";
 
-export default class extends Base {
+import PostProcess          from "./postprocessing";
+
+export default class World extends Base {
 
     constructor() {
 
-        super();        
+        super();
 
-        this.renderer               = new WebGLRenderer( { antialias: true } );
-        this.renderer.setPixelRatio( window.devicePixelRatio );
-
-        this.clock = new Clock( true );
-        
-        this.camera = new Camera( { renderer: this.renderer } );   
-
-        this.scene                  = new Scene();
-        this.renderer.setClearColor( new Color( 'rgb( 40, 30, 20 )' ) );
-        this.postProcess            = new PostProcess( this.scene, this.camera, this.renderer );
+        this.renderer   =   Renderer;
+        this.scene      =   Scene;
 
         this.globeContainer = new Object3D();
 
-        const supportsExtension = true;
-
-        document.body.appendChild( this.renderer.domElement );
-
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-
-        if ( this.renderer.capabilities.isWebGL2 === false && ! this.renderer.extensions.get( 'WEBGL_depth_texture' ) ) {
-
-            supportsExtension = false;
-            console.log( "No depth data available" );
-
-        }
-
         this.globe;
+
         this.createScene();
         this.addLights();
 
@@ -88,7 +80,7 @@ export default class extends Base {
 
     createScene() {
 
-        this.globe = new Globe( { renderer: this.renderer, scene: this.scene } );
+        this.globe = new Globe( );
 
         this.globeContainer.add( this.globe );
 
@@ -102,7 +94,14 @@ export default class extends Base {
     addLights() {
 
         this.scene.add( new HemisphereLight() )
-        this.scene.add( new PointLight( new Color( "rgb( 180, 140, 50 )" ), 2 ) )
+        
+        const pl1 = new PointLight( new Color( "rgb( 180, 140, 50 )" ), 0.5 );
+        pl1.position.set( 0, 0, 0 );
+
+        // const pl2 = new PointLight( new Color( "rgb( 180, 140, 50 )" ), 0.5 );
+        // pl2.position.set( 0.5, 0, 0 );
+
+        this.scene.add( pl1 );
 
     }
 
@@ -117,18 +116,12 @@ export default class extends Base {
     resize() {
 
         const canvas = this.renderer.domElement;
-        this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        this.camera.updateProjectionMatrix();
+        Camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        Camera.updateProjectionMatrix();
 
         const pixelRatio = window.devicePixelRatio;
 
-        if ( canvas.width != window.innerWidth || canvas.height != window.innerHeight ) {
-
-            this.renderer.setSize( window.innerWidth, window.innerHeight );
-
-        }
-
-        //this.postProcess.resize( window.innerWidth, window.innerHeight );
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
 
     }
 
@@ -155,12 +148,10 @@ export default class extends Base {
         super.update( elapsedTime, delta );
 
         this.globeContainer.rotation.y += 0.1 * delta;
-        
-        this.camera.update( elapsedTime );
 
         this.resize();
 
-        this.renderer.render( this.scene, this.camera );
+        PostProcess.render( Scene, Camera );
 
     }
 

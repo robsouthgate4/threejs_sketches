@@ -1,4 +1,4 @@
-import Constants from "Common/Constants"
+import Constants from "Common/Constants";
 import Emitter 	 from "Common/Emitter";
 
 export default class Base {
@@ -50,12 +50,16 @@ export default class Base {
 	onTouch( ev ) {
 		
 		this.mouse = this.getMouse( ev );
+
+		Emitter.emit( "touch", this.mouse );
 		
 	}
 
 	onTouchEnd( ev ) {
 
 		this.mouse = this.getMouse( ev );
+
+		Emitter.emit( "touchend", this.mouse );
 
 	}
 
@@ -73,7 +77,9 @@ export default class Base {
         ev.preventDefault();
         ev.stopPropagation();
 
-        this.mouse = this.getMouse( ev );
+		this.mouse = this.getMouse( ev );
+		
+		Emitter.emit( "mousemove", this.mouse );
 
 	}
 
@@ -129,8 +135,6 @@ export default class Base {
 	}
 
 	update( elapsed, delta ) {
-
-		console.log( elapsed )
 
 		Emitter.emit( "update", { elapsed, delta } );
 

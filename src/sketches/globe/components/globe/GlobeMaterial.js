@@ -14,11 +14,15 @@ import {
 	ShaderMaterial, 
 	UniformsUtils } 	from "three";
 
-import lights 			from 'Assets/globe_assets/globe_maps/lights.jpg';
-import bump 			from 'Assets/globe_assets/globe_maps/bump.jpg';
-import spec 			from 'Assets/globe_assets/globe_maps/spec.jpg';
+import lights 			from "Assets/globe_assets/globe_maps/lights.jpg";
+import bump 			from "Assets/globe_assets/globe_maps/bump.jpg";
+import spec 			from "Assets/globe_assets/globe_maps/spec.jpg";
 
 import { HDRCubeTextureLoader } 	from "three/examples/jsm/loaders/HDRCubeTextureLoader";
+
+import Renderer					from "Globals/Renderer";
+import Scene					from "Globals/Scene";
+import Emitter					from "Common/Emitter";
 
 function importAll( r ) {
 
@@ -33,7 +37,7 @@ const hdrImages = importAll(
 
 export default class GlobeMaterial extends ShaderMaterial {
 
-	constructor( { renderer, scene } ) {		
+	constructor() {		
 
 		const lightsMap = new TextureLoader().load( lights );
 		const bumpMap   = new TextureLoader().load( bump );
@@ -72,8 +76,8 @@ export default class GlobeMaterial extends ShaderMaterial {
 			} 
 		);
 
-		this.renderer 	= renderer;
-		this.scene 		= scene;
+		this.renderer 	= Renderer;
+		this.scene 		= Scene;
 
 		this.bumpMap					= bumpMap;
 		this.uniforms.bumpMap.value		= bumpMap;
@@ -105,11 +109,13 @@ export default class GlobeMaterial extends ShaderMaterial {
 
 			});
 
+			Emitter.on( "update", this.update.bind( this ) )
+
 	}
 
-	update( time ) {
+	update( data ) {
 
-		this.uniforms.time.value = time;
+		this.uniforms.time.value = data.elapsed;
 
 	}
 	

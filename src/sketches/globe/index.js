@@ -2,14 +2,14 @@
 
 import "./style.css";
 
-import Scene from "./Scene";
+import World from "./World";
 
-const activeScene = new Scene();
+const world = new World();
 
-activeScene.start();
+world.start();
 
 window.addEventListener( "resize", () => {
 
-    activeScene.resize( );
+    world.resize( window.innerWidth, window.innerHeight );
 
 } );

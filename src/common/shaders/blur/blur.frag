@@ -1,39 +1,22 @@
+#define M_PI 3.1415926535897932384626433832795
 
+uniform sampler2D 	tDiffuse;
+uniform vec2 		uResolution;
+uniform vec2 		uStrength;
 
-precision highp float;
+varying vec2 		vUv;
 
-uniform sampler2D   uTexture;
-uniform vec2        uResolution;
-varying vec2        vUv;
+#pragma glslify: blur9 = require(../partials/blur13.glsl)
 
-void main() {
+void main()
+{
+    vec4 diffuseColor 	= texture2D( tDiffuse, vUv );
 
+    vec4 blurColor 		= blur9( tDiffuse, vUv, uResolution, uStrength );
 
-	vec2 texSize        = uResolution;
-    vec2 fragCoord      = gl_FragCoord.xy;
+    // /float blurStrength 	= 1.0 - sin( vUv.y * M_PI );
+    float blurStrength        = pow( distance( vUv, vec2( 0.5 ) ), 0.8 );
 
-	gl_FragColor        = texture2D( uTexture, vUv );
-
-	const float size    = 4.0;
-
-	if (size <= 0.0) { return; }
-
-	float separation    = 1.0;
-	separation          = max(  separation, 1.0 );
-
-	gl_FragColor.rgb     = vec3(0.0);
-
-	for ( float i = -size; i <= size; ++i ) {
-
-	 	for ( float j = -size; j <= size; ++j ) {
-
-	 	    gl_FragColor.rgb += texture2D( uTexture, ( fragCoord + ( vec2( i, j ) * separation ) ) / uResolution ).rgb;
-
-	 	}
-	}
-
-	gl_FragColor.rgb    /= pow( float( size ) * 2.0 + 1.0, 2.0 );
-
-	gl_FragColor.a	    = 1.0;
-
+    gl_FragColor        = mix( diffuseColor, blurColor, blurStrength );
+	
 }

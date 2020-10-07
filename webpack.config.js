@@ -6,8 +6,6 @@ module.exports = env => {
 
 	const { npm_config_sketch } = process.env;
 
-	console.log ( npm_config_sketch );
-
 	return {
 		entry: `./src/sketches/${ npm_config_sketch }/index.js`,
 		output: {
@@ -17,27 +15,35 @@ module.exports = env => {
 		resolve: {
 			extensions: [".js", ".wasm"],
 			alias: {
-				Assets: path.resolve(__dirname, 'assets/'),
-				Common: path.resolve(__dirname, './src/common/'),
+				Assets: 	path.resolve( __dirname, "assets/" ),
+				Common: 	path.resolve( __dirname, "./src/common/" ),
+				Globals: 	path.resolve( __dirname, `./src/sketches/${ npm_config_sketch }/globals` )
 			},
 		},
 		plugins: [
-			new HtmlWebpackPlugin({
+
+			new HtmlWebpackPlugin( {
+
 				template: `./src/sketches/${ npm_config_sketch }/index.html`,
 				filename: 'index.html'
-			}),
+
+			} ),
 			new webpack.DefinePlugin({
 
 				SKETCH: npm_config_sketch
 
-			})
+			} )
+
 		],
 		devServer: {
+
 			contentBase: './dist',
 			https: false,
 			host: '0.0.0.0'
+
 		},
 		module: {
+			
 			rules: [
 				{
 					test: /\.css$/i,
@@ -59,6 +65,7 @@ module.exports = env => {
 					]
 				}
 			]
+
 		}
 	}
 };	

@@ -4,11 +4,11 @@ import Emitter					from "Common/Emitter";
 
 export default class Globe extends Mesh {
 
-	constructor( { renderer, scene } ) {
+	constructor() {
 		
 
 		const globeGeo 		= new SphereGeometry( 1, 64, 64 );
-		const globeMaterial = new GlobeMaterial( { renderer, scene } );
+		const globeMaterial = new GlobeMaterial();
 
 		super( globeGeo, globeMaterial );
 
@@ -20,12 +20,6 @@ export default class Globe extends Mesh {
 	}
 
 	update( data ) {
-
-		//this.rotation.y -= 0.0005;
-
-		console.log( data )
-
-		this.material.update( data.elapsed );
 
 	}
 
